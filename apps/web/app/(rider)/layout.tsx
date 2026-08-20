@@ -1,0 +1,15 @@
+import type { Metadata } from 'next'
+import { AppShell } from '@/components/layout/AppShell'
+
+export const metadata: Metadata = {
+  title: 'Rider',
+  robots: { index: false, follow: false },
+}
+
+export default function RiderLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AppShell role="rider" brand="Rider">
+      {children}
+    </AppShell>
+  )
+}

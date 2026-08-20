@@ -1,0 +1,10 @@
+node_modules/
+.next/
+out/
+dist/
+build/
+.venv/
+venv/
+pnpm-lock.yaml
+*.lock
+uv.lock

@@ -1,0 +1,108 @@
+@import 'tailwindcss';
+
+/*
+ * MohallaShop design tokens (Tailwind v4 @theme).
+ * Defining `--color-*` here generates matching utilities (bg-*, text-*, border-*).
+ * Brand = violet/purple (modern, friendly). Accent = saffron/amber (energy).
+ */
+@theme {
+  /* Brand (violet) */
+  --color-brand-50: #f5f3ff;
+  --color-brand-100: #ede9fe;
+  --color-brand-200: #ddd6fe;
+  --color-brand-300: #c4b5fd;
+  --color-brand-400: #a78bfa;
+  --color-brand-500: #8b5cf6;
+  --color-brand-600: #7c3aed;
+  --color-brand-700: #6d28d9;
+  --color-brand-800: #5b21b6;
+  --color-brand-900: #4c1d95;
+  --color-brand-950: #2e1065;
+
+  /* Accent (saffron/amber) */
+  --color-accent-100: #fef3c7;
+  --color-accent-300: #fcd34d;
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706;
+  --color-accent-700: #b45309;
+
+  /* Semantic surfaces */
+  --color-background: #f6f5fa;
+  --color-surface: #ffffff;
+  --color-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-content: #111827;
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+
+  /* Typography */
+  --font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+
+  /* Radii */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+
+  /* Shadows */
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.08);
+  --shadow-elevated: 0 8px 24px rgba(16, 24, 40, 0.12);
+
+  /* Container */
+  --breakpoint-3xl: 1920px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-content);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100dvh;
+  }
+
+  /* Visible, brand-tinted focus ring for keyboard users (accessibility). */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Large tap targets on coarse pointers (touch). */
+  @media (pointer: coarse) {
+    button,
+    a,
+    [role='button'] {
+      min-height: 44px;
+    }
+  }
+}
+
+@utility container-page {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 80rem;
+  padding-inline: 1rem;
+  @media (min-width: 768px) {
+    padding-inline: 1.5rem;
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "mohallashop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MohallaShop — neighbourhood commerce platform (Phase 1: Web MVP)",
+  "packageManager": "pnpm@10.26.1",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\" --ignore-path .gitignore",
+    "test": "pnpm -r test",
+    "clean": "pnpm -r exec rimraf node_modules .next dist .turbo || true"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.8"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ]
+  }
+}

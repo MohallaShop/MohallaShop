@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+
+# Generated
+.next/
+out/
+dist/
+build/
+coverage/
+playwright-report/
+test-results/
+
+# Data
+pgdata/
+*.sqlite3
+
+# Docs build
+docs/_build/

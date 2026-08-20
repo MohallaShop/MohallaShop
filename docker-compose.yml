@@ -1,0 +1,31 @@
+# ─────────────────────────────────────────────────────────────
+# MohallaShop — local development environment
+# Usage:  docker compose up -d
+#
+# Provides: PostgreSQL (+ persisted volume).
+# Backend & frontend run on the host during development for fast
+# hot-reload. See docs/DEVELOPMENT.md.
+# ─────────────────────────────────────────────────────────────
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: mohallashop-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-mohalla}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: ${POSTGRES_DB:-mohallashop}
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - mohallashop_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-mohalla} -d ${POSTGRES_DB:-mohallashop}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mohallashop_pgdata:
+    driver: local
