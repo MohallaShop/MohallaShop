@@ -2,7 +2,6 @@
 name = "mohallashop-backend"
 version = "0.1.0"
 description = "MohallaShop — FastAPI backend (modular monolith)"
-readme = "../README.md"
 requires-python = ">=3.11"
 license = { text = "Proprietary" }
 authors = [{ name = "MohallaShop" }]
