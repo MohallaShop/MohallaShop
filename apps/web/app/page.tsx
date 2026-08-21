@@ -33,10 +33,7 @@ export default function Home() {
       <section className="from-brand-50 to-background bg-gradient-to-b">
         <Container className="py-16 md:py-24">
           <div className="mx-auto max-w-3xl text-center">
-            <span className="bg-brand-100 text-brand-700 inline-flex items-center rounded-full px-3 py-1 text-sm font-medium">
-              Phase 1 · Web MVP
-            </span>
-            <h1 className="text-content mt-5 text-4xl font-bold tracking-tight md:text-6xl">
+            <h1 className="text-content text-4xl font-bold tracking-tight md:text-6xl">
               Your neighbourhood, <span className="text-brand-600">delivered.</span>
             </h1>
             <p className="text-muted mt-5 text-lg md:text-xl">
