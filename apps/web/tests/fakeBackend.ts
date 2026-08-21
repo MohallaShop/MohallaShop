@@ -223,7 +223,9 @@ const ALLOWED: Record<OrderStatus, OrderStatus[]> = {
   pending_shop: ['accepted', 'rejected', 'cancelled'],
   accepted: ['preparing', 'cancelled'],
   preparing: ['ready_for_pickup'],
-  ready_for_pickup: [],
+  ready_for_pickup: ['out_for_delivery'],
+  out_for_delivery: ['delivered'],
+  delivered: [],
   rejected: [],
   cancelled: [],
 }

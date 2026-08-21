@@ -79,6 +79,11 @@ playwright-report/
 playwright/.cache/
 *.lcov
 
+# ── Throwaway local debug scripts (backend root) ─────────────
+# One-off DB/debug scripts; the real suite lives in backend/tests/.
+# NEVER commit these — some contain hardcoded dev session tokens.
+/backend/test_*.py
+
 # ── Build / bundle artifacts ──────────────────────────────────
 *.log
 logs/

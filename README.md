@@ -11,10 +11,17 @@ Domain: `mohallashop.in`
 
 ## Status
 
-🟢 **Phase 0 — Foundation** (in progress)
+🟢 **Phase 1 — Web MVP (implemented)**
 
-This phase establishes the repository, app shells, database, auth, and tooling.
-Business domains (orders, inventory, payments, deliveries) are built in later phases — see [`docs/IMPLEMENTATION_AUDIT.md`](docs/IMPLEMENTATION_AUDIT.md) and the roadmap.
+The Phase 1 vertical slice is implemented end to end: customer shopping (browse
+shops/products, cart, checkout, orders), shopkeeper order workflow plus catalog
+management and shop registration/approval, rider availability and delivery
+lifecycle (assignment → pickup → delivery/failed-reassignment), and admin
+oversight with shop lifecycle and user role management. See
+[`docs/FINAL_REPORT.md`](docs/FINAL_REPORT.md) and the roadmap.
+
+Online payments (Razorpay), wallets, subscriptions, and analytics ingestion
+remain future work — their provider contracts are not yet wired up.
 
 ---
 

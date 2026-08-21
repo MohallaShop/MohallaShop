@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Container } from '@/components/layout/Container'
 import { PageHeader, EmptyState, ErrorState } from '@/components/ui/StateFeedback'
@@ -11,8 +11,9 @@ import { Badge } from '@/components/ui/Badge'
 import { getShop, listShopProducts } from '@/lib/api/shops'
 import { listFavoriteShops } from '@/lib/api/favorites'
 import { FavoriteToggle } from '@/components/customer/RemoveFavoriteButton'
-import { requireServerToken } from '@/lib/api/session'
-import { isAuthError, isNotFound } from '@/lib/api/errors'
+import { getServerAuth } from '@/lib/api/session'
+import { isNotFound } from '@/lib/api/errors'
+import { formatMoney } from '@/lib/utils/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,7 +25,9 @@ export async function generateMetadata({
   params: Promise<{ shopId: string }>
 }): Promise<Metadata> {
   const { shopId } = await params
-  const token = await requireServerToken(`/shops/${shopId}`)
+  // Guest-browsable catalogue page (ADR-0006).
+  const auth = await getServerAuth()
+  const token = auth?.token ?? null
   try {
     const shop = await getShop(token, shopId)
     return {
@@ -45,7 +48,8 @@ export default async function ShopDetailPage({
   searchParams: Promise<SP>
 }) {
   const { shopId } = await params
-  const token = await requireServerToken(`/shops/${shopId}`)
+  // Guest-browsable catalogue page (ADR-0006).
+  const token = (await getServerAuth())?.token ?? null
   const sp = await searchParams
   const q = sp.q?.trim() || undefined
   const onlyInStock = sp.only_in_stock === '1' || sp.only_in_stock === 'true'
@@ -58,7 +62,6 @@ export default async function ShopDetailPage({
       listShopProducts(token, shopId, { q, page, page_size: 12, only_in_stock: onlyInStock }),
     ])
   } catch (err) {
-    if (isAuthError(err)) redirect(`/login?next=/shops/${shopId}`)
     if (isNotFound(err)) notFound()
     return <ErrorState error={err} />
   }
@@ -66,6 +69,7 @@ export default async function ShopDetailPage({
   // Best-effort: mark this shop as favorited if it appears in the user's list.
   let favoriteId: string | null = null
   try {
+    if (!token) throw new Error('guest')
     const favs = await listFavoriteShops(token)
     favoriteId = favs.find((f) => f.shop_id === shopId)?.id ?? null
   } catch {
@@ -90,17 +94,22 @@ export default async function ShopDetailPage({
         </div>
       </PageHeader>
 
-      <div className="border-border bg-surface shadow-card mb-6 grid gap-4 rounded-2xl border p-5 sm:grid-cols-2">
+      <div className="border-border bg-surface shadow-card mb-6 grid gap-4 rounded-2xl border p-5 sm:grid-cols-3">
         <div>
           <h2 className="text-content text-sm font-semibold">Address</h2>
           <p className="text-muted text-sm">
-            {[addr?.line1, addr?.city, addr?.state, addr?.pincode].filter(Boolean).join(', ') ||
-              'Not provided'}
+            {[addr?.line1, addr?.line2, addr?.city, addr?.state, addr?.pincode]
+              .filter(Boolean)
+              .join(', ') || 'Not provided'}
           </p>
         </div>
         <div>
           <h2 className="text-content text-sm font-semibold">Contact</h2>
           <p className="text-muted text-sm">{shop.phone ?? 'Not provided'}</p>
+        </div>
+        <div>
+          <h2 className="text-content text-sm font-semibold">Delivery fee</h2>
+          <p className="text-muted text-sm">{formatMoney(shop.delivery_fee)}</p>
         </div>
       </div>
 

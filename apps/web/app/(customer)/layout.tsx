@@ -29,7 +29,7 @@ export default async function CustomerLayout({ children }: { children: React.Rea
   }
 
   return (
-    <AppShell role="customer" user={{ name, location }}>
+    <AppShell role="customer" user={{ name, location, signedIn: Boolean(auth) }}>
       {children}
     </AppShell>
   )

@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.common import Page, PageParams, build_pagination
 from app.auth.roles import Role
-from app.core.deps import Principal, get_current_principal, get_db, require_roles
+from app.core.deps import Principal, get_db, get_optional_principal, require_roles
 from app.shops import service
 from app.shops.models import Product
 from app.shops.schemas import (
@@ -17,6 +17,7 @@ from app.shops.schemas import (
     CategorySummary,
     ProductOut,
     ProductSummary,
+    ShopCreate,
     ShopDetail,
     ShopkeeperInventoryUpdate,
     ShopkeeperProductCreate,
@@ -71,7 +72,7 @@ async def list_shops(
     city: str | None = Query(default=None),
     pagination: PageParams = Depends(),
     session: AsyncSession = Depends(get_db),
-    _: Principal = Depends(get_current_principal),
+    _: Principal | None = Depends(get_optional_principal),
 ) -> Page[ShopSummary]:
     items, total = await service.list_shops(
         session, page=pagination.page, page_size=pagination.page_size, q=q, city=city
@@ -96,7 +97,7 @@ async def list_shops(
 async def get_shop(
     shop_id: UUID,
     session: AsyncSession = Depends(get_db),
-    _: Principal = Depends(get_current_principal),
+    _: Principal | None = Depends(get_optional_principal),
 ) -> ShopDetail:
     return await service.get_shop(session, shop_id)
 
@@ -109,7 +110,7 @@ async def list_shop_products(
     only_in_stock: bool = Query(default=False),
     pagination: PageParams = Depends(),
     session: AsyncSession = Depends(get_db),
-    _: Principal = Depends(get_current_principal),
+    _: Principal | None = Depends(get_optional_principal),
 ) -> Page[ProductOut]:
     items, total = await service.list_products(
         session,
@@ -130,7 +131,7 @@ async def list_shop_products(
 async def get_product(
     product_id: UUID,
     session: AsyncSession = Depends(get_db),
-    _: Principal = Depends(get_current_principal),
+    _: Principal | None = Depends(get_optional_principal),
 ) -> ProductOut:
     product = await service.get_product(session, product_id)
     return _product_out(product)
@@ -140,7 +141,7 @@ async def get_product(
 @router.get('/categories', response_model=list[CategoryOut])
 async def list_categories(
     session: AsyncSession = Depends(get_db),
-    _: Principal = Depends(get_current_principal),
+    _: Principal | None = Depends(get_optional_principal),
 ) -> list[CategoryOut]:
     items = await service.list_categories(session)
     return [CategoryOut.model_validate(c) for c in items]
@@ -149,7 +150,7 @@ async def list_categories(
 @router.get('/categories/summary', response_model=list[CategorySummary])
 async def category_summary(
     session: AsyncSession = Depends(get_db),
-    _: Principal = Depends(get_current_principal),
+    _: Principal | None = Depends(get_optional_principal),
 ) -> list[CategorySummary]:
     categories = await service.list_categories(session)
     counts = await service.category_product_counts(session)
@@ -166,7 +167,7 @@ async def search_products(
     category_id: UUID | None = Query(default=None),
     pagination: PageParams = Depends(),
     session: AsyncSession = Depends(get_db),
-    _: Principal = Depends(get_current_principal),
+    _: Principal | None = Depends(get_optional_principal),
 ) -> Page[ProductSummary]:
     rows, total = await service.search_products(
         session,
@@ -194,6 +195,27 @@ async def search_products(
 
 
 # ── Shopkeeper ─────────────────────────────────────────────────
+@router.post('/shopkeeper/shop', response_model=ShopkeeperShop, status_code=status.HTTP_201_CREATED)
+async def register_my_shop(
+    data: ShopCreate,
+    session: AsyncSession = Depends(get_db),
+    principal: Principal = Depends(_shopkeeper),
+) -> ShopkeeperShop:
+    """Register the caller's shop. It is created in `pending` and hidden from
+    customers until an admin approves it."""
+    shop = await service.create_shop(session, principal, data)
+    return ShopkeeperShop(
+        id=shop.id,
+        name=shop.name,
+        description=shop.description,
+        phone=shop.phone,
+        status=shop.status.value,
+        delivery_fee=shop.delivery_fee,
+        product_count=0,
+        pending_order_count=0,
+    )
+
+
 @router.get('/shopkeeper/shop', response_model=ShopkeeperShop)
 async def get_my_shop(
     session: AsyncSession = Depends(get_db),
@@ -207,6 +229,7 @@ async def get_my_shop(
         description=shop.description,
         phone=shop.phone,
         status=shop.status.value,
+        delivery_fee=shop.delivery_fee,
         product_count=product_count,
         pending_order_count=pending,
     )

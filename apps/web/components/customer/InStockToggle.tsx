@@ -22,7 +22,7 @@ export function InStockToggle({ checked }: { checked: boolean }) {
         type="checkbox"
         checked={checked}
         onChange={toggle}
-        className="h-4 w-4 rounded border-gray-300"
+        className="h-4 w-4 rounded border-border accent-brand-600"
       />
       In stock only
     </label>

@@ -1,19 +1,13 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/StateFeedback'
 import { ApiError } from '@/lib/api/client'
 import { addFavoriteShop, removeFavoriteShop } from '@/lib/api/favorites'
 
-export function RemoveFavoriteButton({
-  token,
-  favoriteId,
-}: {
-  token: string
-  favoriteId: string
-}) {
+export function RemoveFavoriteButton({ token, favoriteId }: { token: string; favoriteId: string }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
@@ -46,7 +40,7 @@ export function FavoriteToggle({
   shopId,
   initialFavoriteId,
 }: {
-  token: string
+  token: string | null
   shopId: string
   initialFavoriteId: string | null
 }) {
@@ -54,9 +48,16 @@ export function FavoriteToggle({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const pathname = usePathname()
   const isFavorite = favoriteId !== null
 
   async function toggle() {
+    // Saving a shop is an account action — guests are asked to sign in and
+    // come straight back (guest browsing, ADR-0006).
+    if (!token) {
+      router.push(`/login?next=${encodeURIComponent(pathname ?? '/shops')}`)
+      return
+    }
     setBusy(true)
     setError(null)
     try {
@@ -76,7 +77,12 @@ export function FavoriteToggle({
   }
 
   return (
-    <Button size="sm" variant={isFavorite ? 'secondary' : 'outline'} onClick={toggle} disabled={busy}>
+    <Button
+      size="sm"
+      variant={isFavorite ? 'secondary' : 'outline'}
+      onClick={toggle}
+      disabled={busy}
+    >
       {busy ? <Spinner /> : isFavorite ? '★ Saved' : '☆ Save shop'}
       {error ? <span className="text-danger ml-2 text-xs">{error}</span> : null}
     </Button>

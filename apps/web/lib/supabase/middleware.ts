@@ -8,18 +8,11 @@ type CookieToSet = { name: string; value: string; options: CookieOptions }
 // Route protection is UX protection (ADR-0002). FastAPI remains the security
 // boundary; these guards only keep unauthenticated/incorrect-role users away
 // from surfaces they cannot meaningfully use.
-const CUSTOMER_PROTECTED = [
-  '/home',
-  '/shops',
-  '/products',
-  '/cart',
-  '/checkout',
-  '/orders',
-  '/profile',
-  '/search',
-  '/categories',
-  '/favorites',
-]
+//
+// The catalogue is browsable by guests (ADR-0006): /home, /shops, /products,
+// /search, /categories and /support stay public. Login is demanded only by
+// purchase actions — the customer list below — plus the role-gated areas.
+const CUSTOMER_PROTECTED = ['/cart', '/checkout', '/orders', '/profile', '/favorites']
 const PUBLIC_EXACT = new Set(['/', '/about', '/login'])
 
 function pathnameOf(request: NextRequest): string {
@@ -38,7 +31,7 @@ function areaRoles(pathname: string): string[] | null {
   if (pathname === '/shop' || pathname.startsWith('/shop/')) {
     return ['shopkeeper', 'super_admin']
   }
-  if (pathname === '/rider' || pathname.startsWith('/rider/')) return ['rider']
+  if (pathname === '/rider' || pathname.startsWith('/rider/')) return ['rider', 'super_admin']
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
     return ['admin', 'super_admin']
   }

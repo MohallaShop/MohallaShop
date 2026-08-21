@@ -75,6 +75,10 @@ class Settings(BaseSettings):
     razorpay_key_secret: str = ''
     razorpay_webhook_secret: str = ''
 
+    # ── Riders — Phase 1b ────────────────────────────────────────
+    # Flat per-delivery fee (₹), snapshotted onto each delivery at assignment.
+    rider_delivery_fee: float = 25.0
+
     # ── Security ─────────────────────────────────────────────────
     rate_limit_enabled: bool = True
 
@@ -88,6 +92,16 @@ class Settings(BaseSettings):
     @property
     def is_development(self) -> bool:
         return self.app_env == 'development'
+
+    @property
+    def razorpay_configured(self) -> bool:
+        """Both API credentials present — online payments can be offered."""
+        return bool(self.razorpay_key_id and self.razorpay_key_secret)
+
+    @property
+    def payments_enabled(self) -> bool:
+        """Online payments are live (COD always remains available)."""
+        return self.razorpay_configured
 
     @property
     def is_production(self) -> bool:

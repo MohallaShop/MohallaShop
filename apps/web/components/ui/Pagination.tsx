@@ -33,7 +33,7 @@ export function Pagination({
       {page > 1 ? (
         <Link
           href={buildHref(base, params, prev)}
-          className="border-border bg-surface hover:bg-brand-50 inline-flex h-9 items-center rounded-lg border px-3 text-sm font-medium"
+          className="border-border bg-surface hover:bg-surface-hover inline-flex h-9 items-center rounded-lg border px-3 text-sm font-medium transition"
         >
           ← Prev
         </Link>
@@ -48,7 +48,7 @@ export function Pagination({
       {page < total_pages ? (
         <Link
           href={buildHref(base, params, next)}
-          className="border-border bg-surface hover:bg-brand-50 inline-flex h-9 items-center rounded-lg border px-3 text-sm font-medium"
+          className="border-border bg-surface hover:bg-surface-hover inline-flex h-9 items-center rounded-lg border px-3 text-sm font-medium transition"
         >
           Next →
         </Link>

@@ -38,7 +38,7 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
         <EmptyState title="No products" description="No products match this view." />
       ) : (
         <>
-          <ul className="border-border bg-surface shadow-card divide-border rounded-2xl border divide-y">
+          <ul className="border-border bg-surface shadow-card divide-border divide-y rounded-2xl border">
             {result.items.map((p) => (
               <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div>

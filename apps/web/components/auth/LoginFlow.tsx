@@ -3,49 +3,25 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Spinner } from '@/components/ui/StateFeedback'
-import { RoleSelect } from './RoleSelect'
-import { MethodSelect } from './MethodSelect'
-import { EmailSignIn } from './EmailSignIn'
-import { PhoneSignIn } from './PhoneSignIn'
+import { EmailPasswordAuth } from './EmailPasswordAuth'
 import { createClient } from '@/lib/supabase/client'
-import {
-  isEntryRole,
-  landingFor,
-  rolesFromAppMetadata,
-  sanitizeNext,
-  type EntryRole,
-} from '@/lib/auth/redirect'
-import { AUTH_METHODS, type AuthMethod } from '@/lib/config/auth'
-
-type Step = 'role' | 'method' | 'auth'
-
-const ROLE_HEADING: Record<EntryRole, { title: string; verb: string }> = {
-  customer: { title: 'Customer', verb: 'Continue as' },
-  shopkeeper: { title: 'Shopkeeper', verb: 'Continue as' },
-  rider: { title: 'Rider', verb: 'Continue as' },
-  admin: { title: 'Administrator', verb: 'Continue as' },
-}
+import { landingFor, rolesFromAppMetadata, sanitizeNext } from '@/lib/auth/redirect'
 
 /**
- * Role-first authentication entry flow:
+ * Authentication entry: email + password sign-in / sign-up in one card.
  *
- *   role selection → auth method → email/phone OTP → role-specific surface
- *
- * The selected role is a UX hint only — the destination is derived from the
- * verified JWT `app_metadata.roles` (ADR-0002), so picking a role never grants
- * privileges. A user whose actual role differs is routed to their own area.
+ * There is deliberately no role or method selection step — customers are the
+ * overwhelming majority, and the selected role never granted anything anyway:
+ * the destination is derived from the verified JWT `app_metadata.roles`
+ * (ADR-0002). Shopkeepers/riders/admins use the same form and land in their
+ * own dashboard. A legacy `?role=` query parameter is tolerated and ignored.
  */
 export function LoginFlow() {
   const router = useRouter()
   const params = useSearchParams()
   const next = sanitizeNext(params.get('next'))
   const linkError = params.get('error')
-  const roleParam = params.get('role')
-  const initialRole: EntryRole = isEntryRole(roleParam) ? roleParam : 'customer'
 
-  const [role, setRole] = useState<EntryRole>(initialRole)
-  const [step, setStep] = useState<Step>('role')
-  const [method, setMethod] = useState<AuthMethod | null>(null)
   const [bootstrapping, setBootstrapping] = useState(false)
 
   // Already authenticated → go straight to the right surface.
@@ -66,78 +42,16 @@ export function LoginFlow() {
     })
   }
 
-  const heading = ROLE_HEADING[role]
-
   return (
     <div>
       {linkError === 'auth_callback' ? (
         <p role="alert" className="text-danger mb-4 text-sm">
-          That sign-in link didn&apos;t work (it may have expired or been opened on another
-          device). Request a new one below.
+          That sign-in link didn&apos;t work (it may have expired or been opened on another device).
+          Sign in below or request a new link.
         </p>
       ) : null}
-      {step === 'role' ? (
-        <div className="space-y-4">
-          <div className="text-center">
-            <h1 className="text-content text-xl font-bold">Who are you?</h1>
-            <p className="text-muted mt-1 text-sm">Pick how you want to use MohallaShop.</p>
-          </div>
-          <RoleSelect
-            value={role}
-            onChange={(r) => {
-              setRole(r)
-              setStep('method')
-            }}
-            onAdmin={() => {
-              setRole('admin')
-              setStep('method')
-            }}
-          />
-        </div>
-      ) : step === 'method' ? (
-        <div className="space-y-5">
-          <div className="text-center">
-            <h1 className="text-content text-xl font-bold">Welcome to MohallaShop</h1>
-            <p className="text-muted mt-1 text-sm">
-              {heading.verb} <span className="text-content font-semibold">{heading.title}</span>
-            </p>
-          </div>
-          <MethodSelect
-            onSelect={(m) => {
-              // Disabled methods never proceed (MethodSelect also disables the
-              // button); this guard keeps a config flip alone from producing a
-              // fake sign-in method — ADR-0002.
-              if (!AUTH_METHODS[m].enabled) return
-              setMethod(m)
-              setStep('auth')
-            }}
-            onBack={() => setStep('role')}
-          />
-        </div>
-      ) : (
-        <div className="space-y-5">
-          <div className="text-center">
-            <h1 className="text-content text-xl font-bold">
-              Continue with {AUTH_METHODS[method!].label}
-            </h1>
-            <p className="text-muted mt-1 text-sm">
-              {heading.verb} <span className="text-content font-semibold">{heading.title}</span>
-            </p>
-          </div>
-          {method === 'email' ? (
-            <EmailSignIn onSuccess={onSuccess} next={next} />
-          ) : (
-            <PhoneSignIn onSuccess={onSuccess} />
-          )}
-          <button
-            type="button"
-            onClick={() => setStep('method')}
-            className="text-muted hover:text-content text-sm underline underline-offset-2"
-          >
-            Change method
-          </button>
-        </div>
-      )}
+
+      <EmailPasswordAuth onSuccess={onSuccess} next={next} />
 
       {bootstrapping ? (
         <div className="text-muted mt-4 flex items-center justify-center gap-2 text-sm">

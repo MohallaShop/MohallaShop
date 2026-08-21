@@ -132,7 +132,7 @@ export function AddressForm({
           type="checkbox"
           checked={value.is_default ?? false}
           onChange={(e) => set('is_default', e.target.checked)}
-          className="h-4 w-4 rounded border-gray-300"
+          className="h-4 w-4 rounded border-border accent-brand-600"
         />
         Set as default address
       </label>
@@ -280,7 +280,7 @@ export function AddressManager({ addresses }: { addresses: AddressOut[] }) {
               <div className="text-content flex items-center gap-2 font-semibold">
                 {a.label ? <span>{a.label}</span> : null}
                 {a.is_default ? (
-                  <span className="bg-brand-50 text-brand-700 rounded-full px-2 py-0.5 text-xs font-semibold">
+                  <span className="bg-brand-500/10 text-brand-700 dark:text-brand-300 ring-brand-500/20 rounded-full px-2 py-0.5 text-xs font-semibold ring-1">
                     Default
                   </span>
                 ) : null}

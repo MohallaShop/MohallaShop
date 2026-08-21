@@ -7,7 +7,7 @@ import type { ProductSummary } from '@/lib/api/types'
 export function ProductSearchCard({ product }: { product: ProductSummary }) {
   return (
     <div className="border-border bg-surface shadow-card flex flex-col rounded-2xl border p-4">
-      <div className="bg-brand-50 text-brand-700 mb-3 grid h-20 place-items-center rounded-xl text-xl">
+      <div className="bg-surface-hover text-muted mb-3 grid h-20 place-items-center rounded-xl text-xl">
         {product.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -51,19 +51,13 @@ export function ProductSearchCard({ product }: { product: ProductSummary }) {
 }
 
 /** Small card variant used on the categories grid. */
-export function CategoryCard({
-  category,
-  href,
-}: {
-  category: CategorySummaryLike
-  href: string
-}) {
+export function CategoryCard({ category, href }: { category: CategorySummaryLike; href: string }) {
   return (
     <Link
       href={href}
       className="border-border bg-surface shadow-card hover:shadow-elevated group flex items-center gap-4 rounded-2xl border p-4 transition hover:-translate-y-0.5"
     >
-      <span className="bg-brand-50 text-brand-600 grid h-12 w-12 shrink-0 place-items-center rounded-xl text-2xl">
+      <span className="bg-brand-500/10 text-brand-600 dark:text-brand-400 border-border/50 grid h-12 w-12 shrink-0 place-items-center rounded-xl border text-2xl">
         🧺
       </span>
       <span className="min-w-0">

@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Container } from '@/components/layout/Container'
 import { PageHeader, ErrorState } from '@/components/ui/StateFeedback'
 import { Badge } from '@/components/ui/Badge'
 import { ProductDetailAdd } from '@/components/customer/ProductDetailAdd'
 import { getProduct } from '@/lib/api/shops'
-import { requireServerToken } from '@/lib/api/session'
-import { isAuthError, isNotFound } from '@/lib/api/errors'
+import { getServerAuth } from '@/lib/api/session'
+import { isNotFound } from '@/lib/api/errors'
 import { formatMoney } from '@/lib/utils/format'
 
 export const dynamic = 'force-dynamic'
@@ -18,7 +18,8 @@ export async function generateMetadata({
   params: Promise<{ productId: string }>
 }): Promise<Metadata> {
   const { productId } = await params
-  const token = await requireServerToken(`/products/${productId}`)
+  // Guest-browsable catalogue page (ADR-0006).
+  const token = (await getServerAuth())?.token ?? null
   try {
     const p = await getProduct(token, productId)
     return { title: p.name, description: p.description ?? undefined, robots: { index: false } }
@@ -33,12 +34,12 @@ export default async function ProductDetailPage({
   params: Promise<{ productId: string }>
 }) {
   const { productId } = await params
-  const token = await requireServerToken(`/products/${productId}`)
+  // Guest-browsable catalogue page (ADR-0006).
+  const token = (await getServerAuth())?.token ?? null
   let product
   try {
     product = await getProduct(token, productId)
   } catch (err) {
-    if (isAuthError(err)) redirect(`/login?next=/products/${productId}`)
     if (isNotFound(err)) notFound()
     return <ErrorState error={err} />
   }

@@ -22,6 +22,51 @@ async def test_shop_without_shop_404(client, other_shopkeeper_headers) -> None:
     assert r.status_code == 404
 
 
+async def test_register_shop_starts_pending(client, other_shopkeeper_headers) -> None:
+    r = await client.post(
+        '/api/v1/shopkeeper/shop',
+        headers=other_shopkeeper_headers,
+        json={
+            'name': 'Sahu Kirana Store',
+            'phone': '+919800000001',
+            'address_line1': '12 Ganesh Colony',
+            'city': 'Pune',
+            'state': 'MH',
+            'pincode': '411001',
+            'delivery_fee': '25.00',
+        },
+    )
+    assert r.status_code == 201, r.text
+    body = r.json()
+    assert body['status'] == 'pending'
+    assert body['delivery_fee'] == '25.00'
+
+    # Pending shops are invisible in the customer catalogue.
+    listings = await client.get('/api/v1/shops')
+    names = [s['name'] for s in listings.json()['items']]
+    assert 'Sahu Kirana Store' not in names
+
+
+async def test_register_shop_twice_conflicts(client, db, shopkeeper_headers) -> None:
+    await seed_shop_with_product(db, SHOPKEEPER_ID, shop_name='Existing Shop')
+    r = await client.post(
+        '/api/v1/shopkeeper/shop',
+        headers=shopkeeper_headers,
+        json={'name': 'Second Shop', 'address_line1': '1 St', 'city': 'Pune'},
+    )
+    assert r.status_code == 409
+    assert r.json()['error']['code'] == 'shop_already_exists'
+
+
+async def test_customer_cannot_register_shop(client, customer_headers) -> None:
+    r = await client.post(
+        '/api/v1/shopkeeper/shop',
+        headers=customer_headers,
+        json={'name': 'Nope', 'address_line1': '1 St', 'city': 'Pune'},
+    )
+    assert r.status_code == 403
+
+
 async def test_customer_cannot_access_shopkeeper(client, customer_headers) -> None:
     assert (
         await client.get('/api/v1/shopkeeper/orders', headers=customer_headers)

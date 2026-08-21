@@ -1,11 +1,9 @@
 import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
 import { Container } from '@/components/layout/Container'
 import { PageHeader, EmptyState, ErrorState } from '@/components/ui/StateFeedback'
 import { CategoryCard } from '@/components/customer/ProductSearchCard'
 import { listCategorySummary } from '@/lib/api/shops'
-import { requireServerToken } from '@/lib/api/session'
-import { isAuthError } from '@/lib/api/errors'
+import { getServerAuth } from '@/lib/api/session'
 
 export const metadata: Metadata = {
   title: 'Categories',
@@ -14,13 +12,13 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic'
 
 export default async function CategoriesPage() {
-  const token = await requireServerToken('/categories')
+  // Guest-browsable catalogue page (ADR-0006).
+  const token = (await getServerAuth())?.token ?? null
 
   let categories
   try {
     categories = await listCategorySummary(token)
   } catch (err) {
-    if (isAuthError(err)) redirect('/login?next=/categories')
     return <ErrorState error={err} />
   }
 

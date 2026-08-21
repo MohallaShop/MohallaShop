@@ -9,7 +9,11 @@ import type {
   ShopSummary,
 } from './types'
 
-/** Shops & products discovery services (customer-facing) + shopkeeper shop. */
+/**
+ * Shops & products discovery services (customer-facing) + shopkeeper shop.
+ * Discovery readers accept a null token — the catalogue is browsable by
+ * guests (ADR-0006); the backend treats these routes as optional-auth.
+ */
 
 export interface ListShopsParams {
   page?: number
@@ -19,7 +23,7 @@ export interface ListShopsParams {
 }
 
 export async function listShops(
-  token: string,
+  token: string | null,
   params: ListShopsParams = {},
 ): Promise<Page<ShopSummary>> {
   return api.get<Page<ShopSummary>>('/shops', {
@@ -33,7 +37,7 @@ export async function listShops(
   })
 }
 
-export async function getShop(token: string, shopId: string): Promise<ShopDetail> {
+export async function getShop(token: string | null, shopId: string): Promise<ShopDetail> {
   return api.get<ShopDetail>(`/shops/${shopId}`, { token })
 }
 
@@ -46,7 +50,7 @@ export interface ListShopProductsParams {
 }
 
 export async function listShopProducts(
-  token: string,
+  token: string | null,
   shopId: string,
   params: ListShopProductsParams = {},
 ): Promise<Page<ProductOut>> {
@@ -62,15 +66,15 @@ export async function listShopProducts(
   })
 }
 
-export async function getProduct(token: string, productId: string): Promise<ProductOut> {
+export async function getProduct(token: string | null, productId: string): Promise<ProductOut> {
   return api.get<ProductOut>(`/products/${productId}`, { token })
 }
 
-export async function listCategories(token: string): Promise<CategoryOut[]> {
+export async function listCategories(token: string | null): Promise<CategoryOut[]> {
   return api.get<CategoryOut[]>('/categories', { token })
 }
 
-export async function listCategorySummary(token: string): Promise<CategorySummary[]> {
+export async function listCategorySummary(token: string | null): Promise<CategorySummary[]> {
   return api.get<CategorySummary[]>('/categories/summary', { token })
 }
 
@@ -82,7 +86,7 @@ export interface SearchProductsParams {
 }
 
 export async function searchProducts(
-  token: string,
+  token: string | null,
   params: SearchProductsParams = {},
 ): Promise<Page<ProductSummary>> {
   return api.get<Page<ProductSummary>>('/products', {

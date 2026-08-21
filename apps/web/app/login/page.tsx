@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { LoginFlow } from '@/components/auth/LoginFlow'
 export const metadata: Metadata = {
   title: 'Sign in',
-  description: 'Sign in to MohallaShop as a customer, shopkeeper or rider with email.',
+  description: 'Sign in or create your MohallaShop account with email and password.',
   robots: { index: false, follow: false },
 }
 

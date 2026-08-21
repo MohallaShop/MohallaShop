@@ -6,8 +6,10 @@ import { ProductCard } from './ProductCard'
 import { AddProductButton } from './AddProductButton'
 import type { ProductOut } from '@/lib/api/types'
 
+const routerPush = vi.fn()
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => ({ push: routerPush, replace: vi.fn(), refresh: vi.fn() }),
+  usePathname: () => '/shops/shop-1',
   useSearchParams: () => new URLSearchParams(''),
 }))
 
@@ -25,6 +27,7 @@ beforeEach(() => {
   getBrowserToken.mockReset().mockResolvedValue('token')
   addCartItem.mockReset()
   clearCart.mockReset()
+  routerPush.mockReset()
 })
 
 const product: ProductOut = {
@@ -59,6 +62,16 @@ describe('ProductCard', () => {
 })
 
 describe('AddProductButton', () => {
+  it('sends guests to sign in and back instead of adding (ADR-0006)', async () => {
+    const user = userEvent.setup()
+    getBrowserToken.mockResolvedValue(null)
+    render(<AddProductButton productId="prod-1" shopId="shop-1" />)
+    await user.click(screen.getByRole('button', { name: /add to cart/i }))
+    // Return URL is the page the guest was on — pathname with its query string.
+    expect(routerPush).toHaveBeenCalledWith('/login?next=%2Fshops%2Fshop-1')
+    expect(addCartItem).not.toHaveBeenCalled()
+  })
+
   it('adds the product to the cart', async () => {
     const user = userEvent.setup()
     addCartItem.mockResolvedValue({ id: 'cart', shop_id: 'shop-1', items: [] })

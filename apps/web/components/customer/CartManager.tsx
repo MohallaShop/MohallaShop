@@ -113,7 +113,7 @@ export function CartManager({ initial }: { initial: CartOut }) {
             key={it.id}
             className="border-border bg-surface shadow-card flex gap-3 rounded-2xl border p-4 sm:gap-4"
           >
-            <div className="bg-brand-50 text-brand-700 grid h-16 w-16 shrink-0 place-items-center rounded-xl text-xl">
+            <div className="bg-surface-hover text-muted grid h-16 w-16 shrink-0 place-items-center rounded-xl text-xl">
               {it.image_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img

@@ -92,8 +92,13 @@ def test_expired_token_rejected(jwt_secret: str) -> None:
 
 def test_tampered_token_rejected(jwt_secret: str) -> None:
     token = _make_token(jwt_secret)
-    # Flip the last character to invalidate the signature.
-    tampered = token[:-1] + ('A' if token[-1] != 'A' else 'B')
+    # Tamper the FIRST character of the signature segment. All six of its
+    # bits are significant — unlike the final character, whose low bits can
+    # be padding and survive the flip unchanged.
+    head, payload, signature = token.split('.')
+    flipped = 'B' if signature[0] != 'B' else 'C'
+    tampered = f'{head}.{payload}.{flipped}{signature[1:]}'
+    assert tampered != token
     with pytest.raises(AuthenticationError):
         decode_principal(tampered, _settings(jwt_secret))
 

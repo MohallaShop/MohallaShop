@@ -1,9 +1,9 @@
-"""Admin domain: read-only platform oversight (Phase 1a scope).
+"""Admin domain: platform oversight, shop lifecycle, and user role management.
 
-Admin endpoints aggregate existing tables only. No customer PII beyond what the
-admin role is permitted to see (users + shop ownership + order counts). Write
-operations (approvals, suspensions) are deferred until a proper audit trail and
-admin action log exist.
+Admin endpoints aggregate real database state and provide two write operations:
+shop status transitions (approve / suspend / close) and Supabase-backed user
+role assignment. All writes are audited through the standard order/state
+history machinery and Supabase's own audit trails where applicable.
 """
 
 from __future__ import annotations

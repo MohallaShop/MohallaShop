@@ -41,7 +41,10 @@ export default async function FavoritesPage() {
               key={f.id}
               className="border-border bg-surface shadow-card flex flex-col rounded-2xl border p-4"
             >
-              <Link href={`/shops/${f.shop_id}`} className="text-content font-semibold hover:underline">
+              <Link
+                href={`/shops/${f.shop_id}`}
+                className="text-content font-semibold hover:underline"
+              >
                 {f.shop_name}
               </Link>
               <p className="text-muted text-xs">{f.shop_city ?? '—'}</p>

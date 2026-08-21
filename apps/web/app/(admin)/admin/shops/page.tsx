@@ -4,6 +4,7 @@ import { Container } from '@/components/layout/Container'
 import { PageHeader, EmptyState, ErrorState } from '@/components/ui/StateFeedback'
 import { Pagination } from '@/components/ui/Pagination'
 import { Badge } from '@/components/ui/Badge'
+import { ShopStatusActions } from '@/components/admin/ShopStatusActions'
 import { listAdminShops } from '@/lib/api/admin'
 import { requireServerToken } from '@/lib/api/session'
 import { isAuthError } from '@/lib/api/errors'
@@ -32,21 +33,24 @@ export default async function AdminShopsPage({ searchParams }: { searchParams: P
 
   return (
     <Container>
-      <PageHeader title="Shops" description="All shops on the platform (read-only)." />
+      <PageHeader title="Shops" description="Approve new registrations, suspend or close shops." />
       {result.items.length === 0 ? (
         <EmptyState title="No shops" description="No shops match this view." />
       ) : (
         <>
-          <ul className="border-border bg-surface shadow-card divide-border rounded-2xl border divide-y">
+          <ul className="border-border bg-surface shadow-card divide-border divide-y rounded-2xl border">
             {result.items.map((s) => (
               <li key={s.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div>
-                  <p className="text-content font-semibold">{s.name}</p>
+                  <p className="text-content flex items-center gap-2 font-semibold">
+                    {s.name}
+                    <ShopStatusBadge status={s.status} />
+                  </p>
                   <p className="text-muted text-xs">
                     {s.city ?? '—'} · {s.product_count} products
                   </p>
                 </div>
-                <Badge tone={s.status === 'active' ? 'success' : 'muted'}>{s.status}</Badge>
+                <ShopStatusActions shopId={s.id} status={s.status} />
               </li>
             ))}
           </ul>
@@ -55,4 +59,11 @@ export default async function AdminShopsPage({ searchParams }: { searchParams: P
       )}
     </Container>
   )
+}
+
+function ShopStatusBadge({ status }: { status: string }) {
+  if (status === 'pending') return <Badge tone="warning">pending approval</Badge>
+  if (status === 'suspended') return <Badge tone="danger">suspended</Badge>
+  if (status === 'active') return <Badge tone="success">active</Badge>
+  return <Badge tone="muted">{status}</Badge>
 }

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Container } from '@/components/layout/Container'
 import { PageHeader, ErrorState } from '@/components/ui/StateFeedback'
 import { SignOutButton } from '@/components/auth/SignOutButton'
+import { RegisterShopForm } from '@/components/shopkeeper/RegisterShopForm'
 import { formatDateTime, formatMoney } from '@/lib/utils/format'
 import { getMyShop, listShopOrders } from '@/lib/api/shopkeeper'
 import { requireServerToken } from '@/lib/api/session'
@@ -48,12 +49,26 @@ export default async function ShopkeeperDashboard() {
         <SignOutButton />
       </PageHeader>
 
+      {shop.status === 'pending' ? (
+        <div className="border-warning/40 bg-warning/10 text-content mb-6 rounded-2xl border p-4 text-sm">
+          <strong className="font-semibold">Awaiting approval.</strong> Your shop is queued for
+          admin review. It is hidden from customers until it is approved — you can still set up your
+          catalogue in the meantime.
+        </div>
+      ) : null}
+      {shop.status === 'suspended' ? (
+        <div className="border-danger/40 bg-danger/10 text-content mb-6 rounded-2xl border p-4 text-sm">
+          <strong className="font-semibold">Shop suspended.</strong> An admin has temporarily hidden
+          this shop from customers. Contact support to resolve it.
+        </div>
+      ) : null}
+
       <div className="bg-brand-600 shadow-card mb-6 rounded-2xl p-5 text-white">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Metric label="Products" value={shop.product_count} />
           <Metric label="Incoming" value={shop.pending_order_count} highlight />
           <Metric label="Status" value={shop.status} />
-          <Metric label="Contact" value={shop.phone ?? '—'} />
+          <Metric label="Delivery fee" value={formatMoney(shop.delivery_fee)} />
         </div>
       </div>
 
@@ -128,14 +143,11 @@ function Metric({
 function NoShopYet() {
   return (
     <Container>
-      <PageHeader title="Shop portal" />
-      <div className="border-border bg-surface shadow-card rounded-2xl border border-dashed p-8 text-center">
-        <h2 className="text-content text-lg font-semibold">No shop linked to your account</h2>
-        <p className="text-muted mx-auto mt-1 max-w-md text-sm">
-          Your account doesn’t own a shop yet. A shop is assigned by an admin, or seeded in
-          development. Once linked, incoming orders appear here.
-        </p>
-      </div>
+      <PageHeader
+        title="Shop portal"
+        description="Register your shop in a minute — an admin reviews it before it goes live."
+      />
+      <RegisterShopForm />
     </Container>
   )
 }

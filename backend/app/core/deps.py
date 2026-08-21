@@ -44,6 +44,21 @@ def get_current_principal(
     return principal
 
 
+def get_optional_principal(
+    credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    settings: Settings = Depends(get_settings),
+) -> Principal | None:
+    """Dependency for public catalogue routes: anonymous browsing is allowed.
+
+    No token → ``None`` (the caller treats the request as anonymous). A token
+    that IS presented must still verify — an invalid or expired token is never
+    silently downgraded to anonymous (ADR-0006).
+    """
+    if credentials is None or not credentials.credentials:
+        return None
+    return decode_principal(credentials.credentials, settings)
+
+
 def require_roles(*allowed: Role) -> Callable[..., Principal]:
     """Build a dependency that allows only the given roles.
 
@@ -73,6 +88,7 @@ __all__ = [
     'Settings',
     'get_current_principal',
     'get_db',
+    'get_optional_principal',
     'get_request_principal',
     'get_settings',
     'require_roles',

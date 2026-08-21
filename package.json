@@ -16,7 +16,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\" --ignore-path .gitignore",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\" --ignore-path .gitignore",
     "test": "pnpm -r test",
-    "clean": "pnpm -r exec rimraf node_modules .next dist .turbo || true"
+    "clean": "node scripts/clean.mjs"
   },
   "devDependencies": {
     "prettier": "^3.3.3",

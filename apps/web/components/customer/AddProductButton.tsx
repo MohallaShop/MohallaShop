@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { classifyError } from '@/lib/api/errors'
 import { ApiError } from '@/lib/api/client'
@@ -12,6 +12,9 @@ import { addCartItem, clearCart } from '@/lib/api/cart'
  * Add-to-cart trigger. Backend is authoritative: the single-shop rule is
  * enforced server-side (409 cart_cross_shop). On conflict we offer a clear
  * "switch shop" action that empties the cart and re-adds the item.
+ *
+ * Adding to the cart is the first purchase action — guests are sent to sign
+ * in and returned to the exact page they were on (ADR-0006).
  */
 export function AddProductButton({
   productId,
@@ -31,10 +34,19 @@ export function AddProductButton({
   fullWidth?: boolean
 }) {
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [conflict, setConflict] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
+
+  /** The path to return to after signing in (current page, query included). */
+  function hereAndNow(): string {
+    const query = searchParams.toString()
+    const path = pathname ?? `/shops/${shopId}`
+    return query ? `${path}?${query}` : path
+  }
 
   async function add() {
     setError(null)
@@ -44,7 +56,7 @@ export function AddProductButton({
     try {
       const token = await getBrowserToken()
       if (!token) {
-        router.push('/login?next=/shops/' + shopId)
+        router.push(`/login?next=${encodeURIComponent(hereAndNow())}`)
         return
       }
       await addCartItem(token, { product_id: productId, quantity })

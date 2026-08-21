@@ -9,6 +9,7 @@ from app.api.v1 import auth, health
 from app.carts.router import router as carts_router
 from app.favorites.router import router as favorites_router
 from app.orders.router import router as orders_router
+from app.riders.router import router as riders_router
 from app.shops.router import router as shops_router
 from app.users.router import router as users_router
 
@@ -19,6 +20,7 @@ api_router.include_router(users_router, tags=['profile'])
 api_router.include_router(shops_router, tags=['shops'])
 api_router.include_router(carts_router, tags=['cart'])
 api_router.include_router(orders_router, tags=['orders'])
+api_router.include_router(riders_router, tags=['riders'])
 api_router.include_router(favorites_router, tags=['favorites'])
 api_router.include_router(admin_router, tags=['admin'])
 

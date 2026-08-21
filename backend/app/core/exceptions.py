@@ -16,10 +16,15 @@ class AppError(Exception):
     status_code: int = 500
     code: str = 'internal_error'
 
-    def __init__(self, message: str, *, details: dict[str, Any] | None = None):
+    def __init__(
+        self, message: str, *, details: dict[str, Any] | None = None, code: str | None = None
+    ):
         super().__init__(message)
         self.message = message
         self.details = details or {}
+        # Per-instance override of the class default (e.g. conflict subcodes).
+        if code is not None:
+            self.code = code
 
 
 class AuthenticationError(AppError):

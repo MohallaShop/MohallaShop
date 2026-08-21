@@ -6,7 +6,6 @@ import {
   ReceiptIcon,
   SearchIcon,
   SettingsIcon,
-  ShieldIcon,
   StoreIcon,
   UserIcon,
   UsersIcon,
@@ -68,10 +67,10 @@ export const RIDER_NAV: NavItem[] = [
 export const ADMIN_NAV: NavItem[] = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: DashboardIcon },
   { label: 'Shops', href: '/admin/shops', icon: StoreIcon },
+  { label: 'Products', href: '/admin/products', icon: GridIcon },
   { label: 'Riders', href: '/admin/riders', icon: BikeIcon },
-  { label: 'Customers', href: '/admin/customers', icon: UsersIcon },
+  { label: 'Users', href: '/admin/customers', icon: UsersIcon },
   { label: 'Orders', href: '/admin/orders', icon: ReceiptIcon },
-  { label: 'Complaints', href: '/admin/complaints', icon: ShieldIcon },
   { label: 'Analytics', href: '/admin/analytics', icon: BarChartIcon },
   { label: 'Settings', href: '/admin/settings', icon: SettingsIcon },
 ]

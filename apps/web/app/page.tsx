@@ -6,7 +6,8 @@ const valueProps = [
     title: 'For shoppers',
     desc: 'Discover nearby shops, order daily essentials and track your delivery — from the people you know.',
     cta: 'Start shopping',
-    href: '/login?role=customer',
+    // Browsing is open to everyone; login is only asked at purchase (ADR-0006).
+    href: '/home',
     tone: 'brand' as const,
   },
   {
@@ -44,7 +45,7 @@ export default function Home() {
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
-                href="/login?role=customer"
+                href="/home"
                 className="bg-brand-600 shadow-card hover:bg-brand-700 inline-flex h-12 w-full items-center justify-center rounded-xl px-6 text-base font-semibold text-white transition sm:w-auto"
               >
                 Start shopping
@@ -74,7 +75,7 @@ export default function Home() {
               {
                 step: '2',
                 title: 'Order in seconds',
-                desc: 'Pay on delivery — or online, coming soon.',
+                desc: 'Checkout in a couple of taps and pay cash on delivery.',
               },
               {
                 step: '3',

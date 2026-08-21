@@ -38,6 +38,8 @@ CUSTOMER_ID = UUID('00000000-0000-0000-0000-000000000001')
 SHOPKEEPER_ID = UUID('00000000-0000-0000-0000-000000000002')
 OTHER_SHOPKEEPER_ID = UUID('00000000-0000-0000-0000-000000000003')
 ADMIN_ID = UUID('00000000-0000-0000-0000-000000000004')
+RIDER_ID = UUID('00000000-0000-0000-0000-000000000005')
+RIDER2_ID = UUID('00000000-0000-0000-0000-000000000006')
 
 DEV_SECRET = 'mohallashop-development-test-jwt-secret-do-not-use-in-production'
 DBNAME = 'mohalla_pytest'
@@ -45,6 +47,8 @@ BACKEND_DIR = Path(__file__).resolve().parent.parent
 PGDATA = os.path.join(tempfile.gettempdir(), 'mohalla_pg')
 
 _TABLES = [
+    'deliveries',
+    'riders',
     'favorite_shops',
     'order_state_history',
     'order_items',
@@ -70,9 +74,15 @@ def make_test_settings(database_url: str = 'postgresql+asyncpg://x') -> Settings
         database_url=database_url,
         supabase_jwt_secret=DEV_SECRET,
         supabase_jwt_algorithm='HS256',
-        # Pinned so a local backend/.env with SUPABASE_JWKS_URL cannot leak
+        # Pinned so a local backend/.env with real credentials cannot leak
         # into tests (pydantic-settings merges .env values for unset fields).
         supabase_jwks_url='',
+        supabase_url='',
+        supabase_service_role_key='',
+        razorpay_key_id='',
+        razorpay_key_secret='',
+        razorpay_webhook_secret='',
+        rider_delivery_fee=25.0,
         rate_limit_enabled=False,
     )
 
@@ -93,13 +103,17 @@ def make_token(
     roles: list[str],
     *,
     secret: str = DEV_SECRET,
-    phone: str = '+919999990000',
+    phone: str | None = None,
 ) -> str:
     now = datetime.now(UTC)
+    if phone is None:
+        # Derive a unique number per user so `users.phone`'s partial unique
+        # index is never violated when several identities share a test token.
+        phone = f'+91{user_id.hex[-10:]}'
     payload = {
         'sub': str(user_id),
         'phone': phone,
-        'email': f'{str(user_id)[:8]}@example.com',
+        'email': f'{user_id.hex}@example.com',
         'exp': now + timedelta(hours=1),
         'iat': now,
         'iss': 'supabase',
@@ -215,6 +229,21 @@ def other_shopkeeper_headers() -> dict[str, str]:
 @pytest.fixture
 def admin_headers() -> dict[str, str]:
     return auth_headers(ADMIN_ID, ['admin'])
+
+
+@pytest.fixture
+def super_admin_headers() -> dict[str, str]:
+    return auth_headers(ADMIN_ID, ['admin', 'super_admin'])
+
+
+@pytest.fixture
+def rider_headers() -> dict[str, str]:
+    return auth_headers(RIDER_ID, ['rider'])
+
+
+@pytest.fixture
+def rider2_headers() -> dict[str, str]:
+    return auth_headers(RIDER2_ID, ['rider'])
 
 
 # ── Direct DB helpers ──────────────────────────────────────────

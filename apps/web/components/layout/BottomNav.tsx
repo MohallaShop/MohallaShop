@@ -30,8 +30,10 @@ export function BottomNav({ navItems }: { navItems: NavItem[] }) {
             href={item.href}
             aria-current={active ? 'page' : undefined}
             className={cn(
-              'flex min-w-[4.5rem] flex-1 flex-col items-center justify-center gap-0.5 px-2 py-2 text-[11px] font-medium transition',
-              active ? 'text-brand-700' : 'text-muted',
+              'flex min-w-[4.5rem] flex-1 flex-col items-center justify-center gap-0.5 px-2 py-2 text-xs font-medium transition',
+              active
+                ? 'text-brand-700 dark:text-brand-300'
+                : 'text-muted',
             )}
           >
             <Icon className="h-6 w-6" />

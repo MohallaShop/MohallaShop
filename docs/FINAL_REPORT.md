@@ -1,6 +1,6 @@
 # Final Report — MohallaShop capability + hardening pass
 
-> Date: 2026-08-11
+> Date: 2026-08-11 (updated 2026-08-20 for the rider flow)
 > Status: Implemented and verified in this environment; live provider/deployment
 > verification remains BLOCKED (see Known limitations).
 
@@ -43,6 +43,15 @@ Complete Phase 1a vertical slice (detailed in `docs/PRODUCTION_READINESS_AUD.md`
   admin pages, RBAC-isolated.
 - Favorites (new `favorite_shops` table + migration `0002`) + Favorites page +
   shop favorite toggle.
+- Shop self-registration (POST `/shopkeeper/shop`, starts `pending`) +
+  `/shop` dashboard with the RegisterShopForm; admin approval flow
+  (PATCH `/admin/shops/{id}/status`) with a legal-transition map.
+- User role management (GET/PUT `/admin/users/{id}[/roles]`) via the Supabase
+  Auth Admin API, with a super-admin-only guard against privilege escalation.
+- Rider flow: online/offline availability, least-loaded auto-assignment at shop
+  readiness, pick-up → delivered/failed lifecycle with reassignment, dashboard
+  and earnings — wired end-to-end (migration `0004` → models → service → router
+  → rider UI pages) and covered by 14 integration tests.
 
 ### Truthfulness
 - Removed all fabricated customer-facing values (wallet balance, credit limit,
@@ -106,10 +115,10 @@ orders, order detail), and admin (dashboard, shops, products, orders, customers,
 plus placeholder analytics/complaints/riders/settings).
 
 ## Q. Known limitations
-- Payments, wallet, credits, subscriptions, referrals, notifications, support
-  tickets, deliveries, rider availability/earnings, and admin writes are NOT
-  implemented: their persistence/provider contracts do not exist. They remain
-  honestly absent rather than faked.
+- Online payments (Razorpay), wallet, credits, subscriptions, referrals,
+  notifications, support tickets, and analytics ingestion are NOT implemented:
+  their persistence/provider contracts do not exist. They remain honestly
+  absent rather than faked.
 - Live Supabase/Razorpay/production-Postgres verification BLOCKED (no
   credentials in this environment).
 - Browser/device testing at specific widths BLOCKED (no browser runner here);
@@ -117,31 +126,34 @@ plus placeholder analytics/complaints/riders/settings).
 
 ## R. Remaining blockers
 - First Git commit + remote not created.
-- Rider delivery state machine + audit trail design needed before rider/admin
-  write features.
-- Razorpay integration (capture, signature verify, idempotent webhooks) needed
-  before online payments.
+- Online payments (Razorpay capture, signature verification, idempotent
+  webhooks) needed before checkout offers anything beyond cash on delivery.
 
 ## S. Production deployment requirements
 - Set `APP_ENV=production` plus strong `SUPABASE_JWT_SECRET` (or JWKS),
   `SUPABASE_JWT_ISSUER`, `SUPABASE_JWT_AUDIENCE`, explicit `BACKEND_CORS_ORIGINS`,
   real `DATABASE_URL`, `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL`.
-- Run `alembic upgrade head` (applies 0001 + 0002).
+- Run `alembic upgrade head` (applies 0001–0004).
 - Serve Next.js with SPA-friendly hosting; backend behind HTTPS with CORS.
 
 ## T–V. Files changed / added / deleted
 Added:
 - `backend/app/admin/` (__init__, schemas, service, router)
+- `backend/app/riders/` (__init__, models, schemas, service, router)
 - `backend/app/favorites/` (__init__, models, schemas, service, router)
-- `backend/app/core/rate_limit.py`
-- `backend/alembic/versions/0002_favorite_shops.py`
-- `backend/tests/test_admin.py`, `backend/tests/test_favorites.py`
-- `apps/web/lib/api/admin.ts`, `apps/web/lib/api/favorites.ts`
-- `apps/web/components/customer/ProductSearchCard.tsx`
-- `apps/web/components/customer/RemoveFavoriteButton.tsx`
-- `apps/web/components/shopkeeper/ProductManager.tsx`
-- `apps/web/app/(shopkeeper)/shop/products/page.tsx`
-- `apps/web/app/(admin)/admin/products/page.tsx` (new)
+- `backend/app/core/{rate_limit,supabase_admin}.py`
+- `backend/alembic/versions/0003_shop_lifecycle.py`,
+  `backend/alembic/versions/0004_riders_deliveries.py`
+- `backend/tests/test_admin.py`, `backend/tests/test_riders.py`,
+  `backend/tests/test_favorites.py`
+- `apps/web/lib/api/{admin,rider}.ts`
+- `apps/web/components/{rider,admin}/` (rider components,
+  `UserRolesEditor`, `ShopStatusActions`),
+  `apps/web/components/shopkeeper/RegisterShopForm.tsx`
+- `apps/web/components/customer/ProductSearchCard.tsx`,
+  `RemoveFavoriteButton.tsx`, `DealCard.tsx`
+- `apps/web/app/(rider)/rider/*` (dashboard, deliveries, earnings, profile)
+- `apps/web/app/(admin)/admin/riders/page.tsx` (real API listing)
 - `docs/PRODUCTION_READINESS_AUDIT.md`, `docs/FINAL_REPORT.md`
 
 Modified:
@@ -149,13 +161,13 @@ Modified:
   `backend/app/orders/{service,router,schemas}.py`,
   `backend/app/shops/{service,router,schemas,models}.py`,
   `backend/alembic/env.py`, `backend/app/db/__init__.py`,
-  `backend/app/api/v1/__init__.py`, `backend/tests/{conftest,test_shops,test_shopkeeper}.py`
+  `backend/app/api/v1/__init__.py`, `backend/tests/{conftest,helpers,test_admin,test_shops,test_shopkeeper,test_orders}.py`
 - `apps/web/lib/api/{client,types,shops,shopkeeper}.ts`,
   `apps/web/lib/config/nav.ts`, `apps/web/lib/supabase/middleware.ts`
-- `apps/web/components/customer/{HomeRail,ShopCard,DealCard,DealTimer,FeatureStrip,HeroBanner}.tsx`
+- `apps/web/components/customer/{HomeRail,ShopCard,DealCard,FeatureStrip,HeroBanner,CategoryRow,TrackOrderCard}.tsx`
 - `apps/web/components/layout/{AppShell,Header}.tsx`
-- `apps/web/app/(customer)/{home,categories,search,favorites,shops/[shopId]}/page.tsx`
-- `apps/web/app/(admin)/admin/{dashboard,shops,orders,customers}/page.tsx`
+- `apps/web/app/(customer)/{home,categories,search,favorites,shops,orders,products}/page.tsx`
+- `apps/web/app/(admin)/admin/{dashboard,shops,orders,customers,analytics,settings}.tsx`
 - `.env.example`, `backend/.env.example`
 
 Deleted:
@@ -164,6 +176,6 @@ Deleted:
 
 ## W. Intentionally NOT implemented
 Wallet, credits, subscriptions, referrals, notifications, support tickets,
-online payments, deliveries, rider availability/earnings, and admin write
-operations — because their backend persistence and/or provider contracts do not
-exist, and the "real data only" rule forbids faking them.
+online payments, and analytics ingestion — because their backend persistence
+and/or provider contracts do not exist, and the "real data only" rule forbids
+faking them.

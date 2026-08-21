@@ -33,10 +33,13 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
     <Container>
       <PageHeader title="Orders" description="All orders across the platform (read-only)." />
       {result.items.length === 0 ? (
-        <EmptyState title="No orders yet" description="Orders will appear here as they are placed." />
+        <EmptyState
+          title="No orders yet"
+          description="Orders will appear here as they are placed."
+        />
       ) : (
         <>
-          <ul className="border-border bg-surface shadow-card divide-border rounded-2xl border divide-y">
+          <ul className="border-border bg-surface shadow-card divide-border divide-y rounded-2xl border">
             {result.items.map((o) => (
               <li key={o.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div>

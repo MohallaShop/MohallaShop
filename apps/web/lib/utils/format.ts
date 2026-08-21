@@ -42,6 +42,8 @@ const STATUS_META: Record<OrderStatus, StatusMeta> = {
   accepted: { label: 'Accepted', tone: 'info' },
   preparing: { label: 'Preparing', tone: 'warning' },
   ready_for_pickup: { label: 'Ready for pickup', tone: 'success' },
+  out_for_delivery: { label: 'Out for delivery', tone: 'info' },
+  delivered: { label: 'Delivered', tone: 'success' },
   rejected: { label: 'Rejected', tone: 'danger' },
   cancelled: { label: 'Cancelled', tone: 'muted' },
 }

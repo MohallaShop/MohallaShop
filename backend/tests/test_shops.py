@@ -10,8 +10,26 @@ from tests.helpers import add_product, seed_shop_with_product
 pytestmark = pytest.mark.asyncio
 
 
-async def test_unauthenticated_rejected(client) -> None:
-    assert (await client.get('/api/v1/shops')).status_code == 401
+async def test_anonymous_can_browse_catalogue(client, db) -> None:
+    """Guest browsing (ADR-0006): catalogue reads are public."""
+    await seed_shop_with_product(db, SHOPKEEPER_ID, shop_name='Guest Visible')
+    assert (await client.get('/api/v1/shops')).status_code == 200
+    assert (await client.get('/api/v1/categories')).status_code == 200
+    assert (await client.get('/api/v1/categories/summary')).status_code == 200
+    assert (await client.get('/api/v1/products')).status_code == 200
+
+
+async def test_anonymous_still_rejected_on_private_routes(client) -> None:
+    """Only catalogue reads went public — everything else still needs a token."""
+    assert (await client.get('/api/v1/orders')).status_code == 401
+    assert (await client.get('/api/v1/cart')).status_code == 401
+    assert (await client.get('/api/v1/admin/dashboard')).status_code == 401
+
+
+async def test_bad_token_rejected_not_downgraded(client) -> None:
+    """A presented-but-invalid token must 401, never silently become anonymous."""
+    r = await client.get('/api/v1/shops', headers={'Authorization': 'Bearer not-a-jwt'})
+    assert r.status_code == 401
 
 
 async def test_customer_can_list_shops(client, db, customer_headers) -> None:

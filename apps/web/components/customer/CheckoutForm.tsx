@@ -36,7 +36,6 @@ export function CheckoutForm({ addresses, cart }: { addresses: AddressOut[]; car
         router.push('/login?next=/checkout')
         return
       }
-      // Re-read the live cart just before placing; backend re-validates anyway.
       const live = await getCart(token)
       if (live.items.length === 0) {
         setError('Your cart is empty.')
@@ -49,7 +48,6 @@ export function CheckoutForm({ addresses, cart }: { addresses: AddressOut[]; car
       router.push(`/orders/${order.id}?placed=1`)
       router.refresh()
     } catch (err) {
-      // Specific, honest handling of backend conflicts.
       if (err instanceof ApiError) {
         if (err.code === 'empty_cart') setError('Your cart is empty.')
         else if (err.code === 'insufficient_inventory')
@@ -71,7 +69,10 @@ export function CheckoutForm({ addresses, cart }: { addresses: AddressOut[]; car
         <h2 className="text-content text-lg font-semibold">No saved address</h2>
         <p className="text-muted mt-1 text-sm">Add a delivery address to place your order.</p>
         <div className="mt-4">
-          <Link href="/profile" className="text-brand-700 font-semibold hover:underline">
+          <Link
+            href="/profile"
+            className="text-brand-700 dark:text-brand-400 font-semibold hover:underline"
+          >
             Add an address →
           </Link>
         </div>
@@ -86,14 +87,14 @@ export function CheckoutForm({ addresses, cart }: { addresses: AddressOut[]; car
         <ul className="mt-3 space-y-2">
           {addresses.map((a) => (
             <li key={a.id}>
-              <label className="border-border has-[:checked]:border-brand-500 has-[:checked]:bg-brand-50 flex cursor-pointer gap-3 rounded-xl border p-3">
+              <label className="border-border has-[:checked]:border-brand-500 has-[:checked]:bg-brand-500/10 flex cursor-pointer gap-3 rounded-xl border p-3">
                 <input
                   type="radio"
                   name="address"
                   value={a.id}
                   checked={addressId === a.id}
                   onChange={() => setAddressId(a.id)}
-                  className="mt-1 h-4 w-4"
+                  className="mt-1 h-4 w-4 accent-brand-600"
                 />
                 <span className="text-sm">
                   <span className="text-content font-semibold">
@@ -114,7 +115,10 @@ export function CheckoutForm({ addresses, cart }: { addresses: AddressOut[]; car
         </ul>
         <div className="text-muted mt-2 text-xs">
           Need another?{' '}
-          <Link href="/profile" className="text-brand-700 hover:underline">
+          <Link
+            href="/profile"
+            className="text-brand-700 dark:text-brand-400 hover:underline"
+          >
             Manage addresses
           </Link>
         </div>
@@ -138,7 +142,7 @@ export function CheckoutForm({ addresses, cart }: { addresses: AddressOut[]; car
 
       <section className="border-border bg-surface shadow-card rounded-2xl border p-5">
         <h2 className="text-content text-lg font-semibold">Payment</h2>
-        <div className="border-border bg-brand-50/40 mt-3 flex items-center justify-between rounded-xl border p-3">
+        <div className="border-border bg-brand-500/10 mt-3 flex items-center justify-between rounded-xl border p-3">
           <span className="text-content text-sm font-semibold">Cash on Delivery</span>
           <span className="text-muted text-xs">Online payment coming soon</span>
         </div>

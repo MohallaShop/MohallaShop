@@ -144,7 +144,8 @@ function ProductRow({
           </p>
           <p className="text-muted mt-1 text-xs">
             Stock: <span className="text-content font-semibold">{product.quantity_available}</span>
-            {product.low_stock_threshold != null && product.quantity_available <= product.low_stock_threshold ? (
+            {product.low_stock_threshold != null &&
+            product.quantity_available <= product.low_stock_threshold ? (
               <span className="text-warning ml-2 font-semibold">Low stock</span>
             ) : null}
           </p>
@@ -155,9 +156,7 @@ function ProductRow({
             onClick={toggleActive}
             disabled={busy}
             className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-              product.is_active
-                ? 'bg-emerald-100 text-emerald-700'
-                : 'bg-muted/20 text-muted'
+              product.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-muted/20 text-muted'
             }`}
           >
             {product.is_active ? 'Active' : 'Hidden'}

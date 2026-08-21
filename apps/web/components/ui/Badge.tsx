@@ -4,12 +4,12 @@ import type { StatusMeta } from '@/lib/utils/format'
 type Tone = StatusMeta['tone']
 
 const TONES: Record<Tone, string> = {
-  brand: 'bg-brand-50 text-brand-700 ring-brand-200',
-  success: 'bg-emerald-50 text-success ring-emerald-200',
-  warning: 'bg-amber-50 text-warning ring-amber-200',
-  danger: 'bg-red-50 text-danger ring-red-200',
-  info: 'bg-blue-50 text-info ring-blue-200',
-  muted: 'bg-gray-100 text-muted ring-gray-200',
+  brand: 'bg-brand-500/10 text-brand-700 dark:text-brand-300 ring-brand-500/20',
+  success: 'bg-emerald-500/10 text-success ring-emerald-500/20',
+  warning: 'bg-amber-500/10 text-warning ring-amber-500/20',
+  danger: 'bg-red-500/10 text-danger ring-red-500/20',
+  info: 'bg-blue-500/10 text-info ring-blue-500/20',
+  muted: 'bg-muted/10 text-muted ring-border',
 }
 
 export function Badge({

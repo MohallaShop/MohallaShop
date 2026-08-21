@@ -9,11 +9,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.common import Page, PageParams, build_pagination
 from app.auth.roles import Role
-from app.core.deps import Principal, get_db, require_roles
+from app.core.config import Settings
+from app.core.deps import Principal, get_db, get_settings, require_roles
 from app.core.rate_limit import limiter
 from app.orders import service
 from app.orders.models import Order, OrderStatus
 from app.orders.schemas import CreateOrder, OrderDetail, OrderSummary, RejectOrder
+from app.riders.service import fee_from_settings
 
 router = APIRouter()
 
@@ -155,5 +157,6 @@ async def ready_order(
     order_id: UUID,
     session: AsyncSession = Depends(get_db),
     principal: Principal = Depends(_shopkeeper),
+    settings: Settings = Depends(get_settings),
 ) -> OrderDetail:
-    return await service.ready(session, principal, order_id)
+    return await service.ready(session, principal, order_id, fee_from_settings(settings))

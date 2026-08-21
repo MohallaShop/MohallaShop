@@ -30,6 +30,8 @@ const MOBILE_NAV_BY_ROLE: Partial<Record<AppRole, NavItem[]>> = {
 export interface ShellUser {
   name?: string | null
   location?: string | null
+  /** false when browsing as a guest — the header swaps account chrome for a Sign in button. */
+  signedIn?: boolean
 }
 
 /**
@@ -63,9 +65,20 @@ export function AppShell({
       {/* Mobile brand bar */}
       <header className="border-border bg-surface/95 sticky top-0 z-20 flex h-14 items-center gap-2 border-b px-4 backdrop-blur md:hidden">
         <span className="bg-brand-600 grid h-7 w-7 place-items-center rounded-lg text-white">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M4 9h16l-1-5H5L4 9Z" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M4 9v10a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M4 9v10a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </span>
         <Link href="/" className="text-content text-base font-bold">
@@ -74,7 +87,13 @@ export function AppShell({
       </header>
 
       <div className="md:pl-64">
-        {role === 'customer' ? <Header userName={user?.name} location={user?.location} /> : null}
+        {role === 'customer' ? (
+          <Header
+            userName={user?.name}
+            location={user?.location}
+            signedIn={user?.signedIn ?? true}
+          />
+        ) : null}
         <main>
           <div className="mx-auto w-full max-w-7xl px-4 py-6 pb-28 md:px-6 md:py-6 md:pb-12">
             {children}

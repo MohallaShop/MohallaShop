@@ -140,8 +140,8 @@ def principal_from_claims(claims: dict[str, Any]) -> Principal:
 
     return Principal(
         user_id=user_id,
-        phone=claims.get(_CLAIM_PHONE),
-        email=claims.get(_CLAIM_EMAIL),
+        phone=claims.get(_CLAIM_PHONE) or None,
+        email=claims.get(_CLAIM_EMAIL) or None,
         roles=roles,
     )
 

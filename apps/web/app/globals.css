@@ -1,9 +1,11 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
  * MohallaShop design tokens (Tailwind v4 @theme).
- * Defining `--color-*` here generates matching utilities (bg-*, text-*, border-*).
  * Brand = violet/purple (modern, friendly). Accent = saffron/amber (energy).
+ * Unified design system with seamless Light and Dark mode transitions.
  */
 @theme {
   /* Brand (violet) */
@@ -21,18 +23,22 @@
 
   /* Accent (saffron/amber) */
   --color-accent-100: #fef3c7;
+  --color-accent-200: #fde68a;
   --color-accent-300: #fcd34d;
   --color-accent-400: #fbbf24;
   --color-accent-500: #f59e0b;
   --color-accent-600: #d97706;
   --color-accent-700: #b45309;
 
-  /* Semantic surfaces */
-  --color-background: #f6f5fa;
+  /* Semantic surfaces - Light mode defaults */
+  --color-background: #f8f7fc;
   --color-surface: #ffffff;
-  --color-muted: #6b7280;
-  --color-border: #e5e7eb;
-  --color-content: #111827;
+  --color-surface-elevated: #ffffff;
+  --color-surface-hover: #f3f2fa;
+  --color-muted: #64748b;
+  --color-border: #e6e6f0;
+  --color-content: #0f172a;
+  --color-content-secondary: #334155;
   --color-success: #16a34a;
   --color-warning: #d97706;
   --color-danger: #dc2626;
@@ -49,13 +55,37 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-2xl: 1.25rem;
+  --radius-3xl: 1.5rem;
 
   /* Shadows */
-  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.08);
-  --shadow-elevated: 0 8px 24px rgba(16, 24, 40, 0.12);
+  --shadow-card: 0 1px 3px rgba(16, 24, 40, 0.05), 0 1px 2px rgba(16, 24, 40, 0.03);
+  --shadow-card-hover: 0 8px 20px rgba(16, 24, 40, 0.08), 0 3px 6px rgba(16, 24, 40, 0.04);
+  --shadow-elevated: 0 12px 28px rgba(16, 24, 40, 0.1), 0 4px 10px rgba(16, 24, 40, 0.04);
+  --shadow-glow: 0 0 24px rgba(124, 58, 237, 0.2);
 
-  /* Container */
+  /* Breakpoint */
   --breakpoint-3xl: 1920px;
+}
+
+/* Dark mode overrides */
+.dark {
+  --color-background: #0b0b14;
+  --color-surface: #141422;
+  --color-surface-elevated: #1a1a2e;
+  --color-surface-hover: #202036;
+  --color-muted: #94a3b8;
+  --color-border: #232338;
+  --color-content: #f8fafc;
+  --color-content-secondary: #cbd5e1;
+  --color-success: #22c55e;
+  --color-warning: #fbbf24;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0 8px 20px rgba(0, 0, 0, 0.5), 0 3px 6px rgba(0, 0, 0, 0.3);
+  --shadow-elevated: 0 12px 28px rgba(0, 0, 0, 0.6), 0 4px 10px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 24px rgba(139, 92, 246, 0.25);
 }
 
 @layer base {
@@ -71,22 +101,32 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     min-height: 100dvh;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
   }
 
-  /* Visible, brand-tinted focus ring for keyboard users (accessibility). */
   :focus-visible {
     outline: 2px solid var(--color-brand-500);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
   }
 
-  /* Large tap targets on coarse pointers (touch). */
   @media (pointer: coarse) {
     button,
     a,
     [role='button'] {
       min-height: 44px;
     }
+  }
+
+  ::selection {
+    background-color: var(--color-brand-200);
+    color: var(--color-brand-900);
+  }
+  .dark ::selection {
+    background-color: var(--color-brand-800);
+    color: var(--color-brand-100);
   }
 }
 
@@ -98,11 +138,30 @@
   @media (min-width: 768px) {
     padding-inline: 1.5rem;
   }
+  @media (min-width: 1280px) {
+    padding-inline: 2rem;
+  }
 }
 
 @utility scrollbar-none {
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+  &::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 999px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
   }
 }

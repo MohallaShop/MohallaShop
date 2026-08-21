@@ -29,13 +29,15 @@ from app.db.mixins import TimestampMixin, UUIDPrimaryKey, enum_values
 
 
 class OrderStatus(StrEnum):
-    """Order lifecycle states (Phase 1a subset; see SCHEMA §6)."""
+    """Order lifecycle states (see SCHEMA §6)."""
 
     PLACED = 'placed'  # reserved (creation collapses to PENDING_SHOP)
     PENDING_SHOP = 'pending_shop'
     ACCEPTED = 'accepted'
     PREPARING = 'preparing'
     READY_FOR_PICKUP = 'ready_for_pickup'
+    OUT_FOR_DELIVERY = 'out_for_delivery'
+    DELIVERED = 'delivered'
     REJECTED = 'rejected'
     CANCELLED = 'cancelled'
 

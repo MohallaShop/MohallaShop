@@ -5,6 +5,7 @@ import type {
   OrderSummary,
   Page,
   RejectOrder,
+  ShopCreate,
   ShopkeeperInventoryUpdate,
   ShopkeeperProductCreate,
   ShopkeeperProductOut,
@@ -16,6 +17,11 @@ import type {
 
 export async function getMyShop(token: string): Promise<ShopkeeperShop> {
   return api.get<ShopkeeperShop>('/shopkeeper/shop', { token })
+}
+
+/** Register the caller's shop. It is created in `pending` until an admin approves. */
+export async function createMyShop(token: string, input: ShopCreate): Promise<ShopkeeperShop> {
+  return api.post<ShopkeeperShop>('/shopkeeper/shop', { token, body: input })
 }
 
 export interface ListShopOrdersParams {

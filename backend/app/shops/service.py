@@ -8,17 +8,19 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.exceptions import NotFoundError
+from app.core.exceptions import ConflictError, NotFoundError
 from app.core.security import Principal
 from app.orders.models import Order, OrderStatus
 from app.shops.models import Category, Inventory, Product, Shop, ShopStatus
 from app.shops.schemas import (
     ShopAddressOut,
+    ShopCreate,
     ShopDetail,
     ShopkeeperInventoryUpdate,
     ShopkeeperProductCreate,
     ShopkeeperProductUpdate,
 )
+from app.users.service import ensure_user
 
 
 async def _active_shop_or_404(session: AsyncSession, shop_id: UUID) -> Shop:
@@ -36,6 +38,7 @@ def _detail(shop: Shop) -> ShopDetail:
         phone=shop.phone,
         address=ShopAddressOut(
             line1=shop.address_line1,
+            line2=shop.address_line2,
             city=shop.address_city,
             state=shop.address_state,
             pincode=shop.address_pincode,
@@ -43,6 +46,7 @@ def _detail(shop: Shop) -> ShopDetail:
             longitude=shop.longitude,
         ),
         status=shop.status.value,
+        delivery_fee=shop.delivery_fee,
     )
 
 
@@ -132,6 +136,39 @@ async def get_shopkeeper_shop(session: AsyncSession, principal: Principal) -> Sh
     shop = (await session.execute(stmt)).scalar_one_or_none()
     if shop is None:
         raise NotFoundError('You do not own a shop yet')
+    return shop
+
+
+async def create_shop(
+    session: AsyncSession, principal: Principal, data: ShopCreate
+) -> Shop:
+    """Register the shopkeeper's (single) shop. It starts pending admin approval."""
+    await ensure_user(session, principal)
+    existing = (
+        await session.execute(select(Shop).where(Shop.owner_user_id == principal.user_id))
+    ).scalar_one_or_none()
+    if existing is not None:
+        raise ConflictError(
+            'You already own a shop',
+            code='shop_already_exists',
+            details={'shop_id': str(existing.id)},
+        )
+    shop = Shop(
+        owner_user_id=principal.user_id,
+        name=data.name,
+        description=data.description,
+        phone=data.phone,
+        status=ShopStatus.PENDING,
+        address_line1=data.address_line1,
+        address_line2=data.address_line2,
+        address_city=data.city,
+        address_state=data.state,
+        address_pincode=data.pincode,
+        delivery_fee=data.delivery_fee,
+    )
+    session.add(shop)
+    await session.commit()
+    await session.refresh(shop)
     return shop
 
 
@@ -325,6 +362,7 @@ __all__ = [
     'Category',
     'Shop',
     'category_product_counts',
+    'create_shop',
     'create_shop_product',
     'delete_shop_product',
     'get_product',

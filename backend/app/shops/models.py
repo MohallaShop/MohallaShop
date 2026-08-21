@@ -30,8 +30,10 @@ from app.db.mixins import TimestampMixin, UUIDPrimaryKey, enum_values
 
 
 class ShopStatus(StrEnum):
+    PENDING = 'pending'  # registered, awaiting admin approval
     ACTIVE = 'active'
-    INACTIVE = 'inactive'
+    INACTIVE = 'inactive'  # closed by the owner
+    SUSPENDED = 'suspended'  # temporarily hidden by an admin
 
 
 class Category(UUIDPrimaryKey, Base):
@@ -63,11 +65,15 @@ class Shop(UUIDPrimaryKey, TimestampMixin, Base):
         nullable=False,
     )
     address_line1: Mapped[str | None] = mapped_column(Text)
+    address_line2: Mapped[str | None] = mapped_column(Text)
     address_city: Mapped[str | None] = mapped_column(Text)
     address_state: Mapped[str | None] = mapped_column(Text)
     address_pincode: Mapped[str | None] = mapped_column(Text)
     latitude: Mapped[Decimal | None] = mapped_column(Numeric(9, 6))
     longitude: Mapped[Decimal | None] = mapped_column(Numeric(9, 6))
+    delivery_fee: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2), server_default=text('20'), nullable=False
+    )
 
     __table_args__ = (
         CheckConstraint('char_length(name) BETWEEN 1 AND 120', name='shops_name_len_check'),

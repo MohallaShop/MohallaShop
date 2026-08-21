@@ -26,8 +26,12 @@ export type OrderStatus =
   | 'accepted'
   | 'preparing'
   | 'ready_for_pickup'
+  | 'out_for_delivery'
+  | 'delivered'
   | 'rejected'
   | 'cancelled'
+
+export type DeliveryStatus = 'assigned' | 'picked_up' | 'delivered' | 'failed'
 
 // ── Auth / profile / addresses ────────────────────────────────
 export type Role = 'customer' | 'shopkeeper' | 'rider' | 'admin' | 'super_admin'
@@ -97,6 +101,7 @@ export interface ShopSummary {
 
 export interface ShopAddress {
   line1: string | null
+  line2: string | null
   city: string | null
   state: string | null
   pincode: string | null
@@ -111,6 +116,7 @@ export interface ShopDetail {
   phone: string | null
   address: ShopAddress
   status: string
+  delivery_fee: string
 }
 
 export interface ProductOut {
@@ -156,8 +162,22 @@ export interface ShopkeeperShop {
   description: string | null
   phone: string | null
   status: string
+  delivery_fee: string
   product_count: number
   pending_order_count: number
+}
+
+/** Payload for POST /shopkeeper/shop — registers the caller's shop (starts pending). */
+export interface ShopCreate {
+  name: string
+  description?: string
+  phone?: string
+  address_line1: string
+  address_line2?: string
+  city: string
+  state?: string
+  pincode?: string
+  delivery_fee?: string
 }
 
 // ── Cart ──────────────────────────────────────────────────────
@@ -340,6 +360,61 @@ export interface AdminOrderOut {
   placed_at: string
 }
 
+export interface AdminRiderOut {
+  user_id: string
+  display_name: string | null
+  email: string | null
+  is_online: boolean
+  active_deliveries: number
+  completed_deliveries: number
+}
+
+/** Roles recognized by the platform (mirrors backend app.auth.roles.Role). */
+export type PlatformRole = 'customer' | 'shopkeeper' | 'rider' | 'admin' | 'super_admin'
+
+export const PLATFORM_ROLES: PlatformRole[] = [
+  'customer',
+  'shopkeeper',
+  'rider',
+  'admin',
+  'super_admin',
+]
+
+/** Supabase-backed user detail (GET /admin/users/{id}). */
+export interface AdminUserDetail {
+  id: string
+  email: string | null
+  phone: string | null
+  email_confirmed: boolean
+  roles: string[]
+}
+
+export interface OrdersPerDay {
+  date: string
+  orders: number
+  revenue: string
+}
+
+export interface TopShop {
+  shop_id: string
+  shop_name: string
+  orders: number
+  revenue: string
+}
+
+export interface AdminAnalytics {
+  orders_per_day: OrdersPerDay[]
+  top_shops: TopShop[]
+}
+
+/** Non-secret operational flags (GET /admin/settings). */
+export interface AdminSettings {
+  payments_enabled: boolean
+  razorpay_configured: boolean
+  supabase_admin_configured: boolean
+  rider_delivery_fee: string
+}
+
 // ── Favorites ─────────────────────────────────────────────────
 export interface FavoriteShopOut {
   id: string
@@ -347,4 +422,54 @@ export interface FavoriteShopOut {
   shop_name: string
   shop_city: string | null
   shop_status: string
+}
+
+// ── Rider ─────────────────────────────────────────────────────
+export interface RiderState {
+  user_id: string
+  is_online: boolean
+  active_deliveries: number
+}
+
+export interface RiderDashboard {
+  is_online: boolean
+  active_count: number
+  completed_today: number
+  earned_today: string
+}
+
+export interface RiderDelivery {
+  id: string
+  order_id: string
+  order_no: string
+  shop_name: string
+  status: DeliveryStatus
+  rider_fee: string | null
+  total_amount: string
+  drop_line1: string
+  drop_city: string
+  drop_pincode: string | null
+  contact_name: string | null
+  contact_phone: string | null
+  assigned_at: string | null
+  picked_up_at: string | null
+  completed_at: string | null
+  notes: string | null
+}
+
+export interface EarningDay {
+  date: string
+  deliveries: number
+  fees: string
+}
+
+export interface RiderEarnings {
+  lifetime_deliveries: number
+  lifetime_fees: string
+  today_fees: string
+  per_day: EarningDay[]
+}
+
+export interface FailDelivery {
+  reason?: string
 }

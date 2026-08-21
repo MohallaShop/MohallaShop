@@ -12,6 +12,7 @@ from app.api.common import Money
 
 class ShopAddressOut(BaseModel):
     line1: str | None = None
+    line2: str | None = None
     city: str | None = None
     state: str | None = None
     pincode: str | None = None
@@ -39,6 +40,7 @@ class ShopDetail(BaseModel):
     phone: str | None = None
     address: ShopAddressOut
     status: str
+    delivery_fee: Money
 
 
 class ProductOut(BaseModel):
@@ -63,8 +65,23 @@ class ShopkeeperShop(BaseModel):
     description: str | None = None
     phone: str | None = None
     status: str
+    delivery_fee: Money
     product_count: int
     pending_order_count: int
+
+
+class ShopCreate(BaseModel):
+    """Shopkeeper self-registration. Starts in `pending` until an admin approves."""
+
+    name: str = Field(min_length=1, max_length=120)
+    description: str | None = Field(default=None, max_length=1000)
+    phone: str | None = Field(default=None, max_length=20)
+    address_line1: str = Field(min_length=1, max_length=200)
+    address_line2: str | None = Field(default=None, max_length=200)
+    city: str = Field(min_length=1, max_length=100)
+    state: str | None = Field(default=None, max_length=100)
+    pincode: str | None = Field(default=None, max_length=12)
+    delivery_fee: Decimal = Field(default=Decimal('20'), ge=0, decimal_places=2, max_digits=12)
 
 
 class CategoryOut(BaseModel):

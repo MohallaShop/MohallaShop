@@ -7,7 +7,7 @@ export function ProductCard({ product }: { product: ProductOut }) {
   const available = product.in_stock
   return (
     <div className="border-border bg-surface shadow-card flex flex-col rounded-2xl border p-4">
-      <div className="bg-brand-50 text-brand-700 mb-3 grid h-20 place-items-center rounded-xl text-xl">
+      <div className="bg-surface-hover text-muted mb-3 grid h-20 place-items-center rounded-xl text-xl">
         {product.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img

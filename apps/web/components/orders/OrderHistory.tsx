@@ -19,7 +19,7 @@ export function OrderHistory({ history }: { history: OrderHistoryOut[] }) {
           <li key={i} className="relative">
             <span
               aria-hidden="true"
-              className={`absolute -left-[1.15rem] top-1 h-2.5 w-2.5 rounded-full ring-2 ring-white ${
+              className={`absolute -left-[1.15rem] top-1 h-2.5 w-2.5 rounded-full ring-2 ring-background ${
                 {
                   brand: 'bg-brand-500',
                   success: 'bg-success',

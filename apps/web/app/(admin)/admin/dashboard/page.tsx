@@ -57,7 +57,7 @@ export default async function AdminDashboard() {
         {statusEntries.length === 0 ? (
           <EmptyState title="No orders yet" description="Order counts will appear here." />
         ) : (
-          <ul className="border-border bg-surface shadow-card divide-border rounded-2xl border divide-y">
+          <ul className="border-border bg-surface shadow-card divide-border divide-y rounded-2xl border">
             {statusEntries.map(([status, count]) => (
               <li key={status} className="flex items-center justify-between p-4">
                 <span className="text-content capitalize">{status.replace(/_/g, ' ')}</span>

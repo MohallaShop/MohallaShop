@@ -56,6 +56,10 @@ _ALLOWED: dict[OrderStatus, set[OrderStatus]] = {
     },
     OrderStatus.ACCEPTED: {OrderStatus.PREPARING, OrderStatus.CANCELLED},
     OrderStatus.PREPARING: {OrderStatus.READY_FOR_PICKUP},
+    # The shop hands the parcel to a rider (rider flow, Phase 1b).
+    OrderStatus.READY_FOR_PICKUP: {OrderStatus.OUT_FOR_DELIVERY},
+    # A failed delivery bounces the order back to ready_for_pickup for reassignment.
+    OrderStatus.OUT_FOR_DELIVERY: {OrderStatus.DELIVERED, OrderStatus.READY_FOR_PICKUP},
 }
 
 _RESTOCK_TARGETS = {OrderStatus.REJECTED, OrderStatus.CANCELLED}
@@ -264,7 +268,9 @@ async def create_order(
             )
         subtotal += product.price * item.quantity
 
-    delivery_fee = Decimal('0')
+    # Delivery fee is snapshotted from the shop at checkout time.
+    shop = await session.get(Shop, shop_id)
+    delivery_fee = shop.delivery_fee if shop is not None else Decimal('0')
     total = subtotal + delivery_fee
 
     order_id = uuid4()
@@ -514,8 +520,34 @@ async def preparing(session: AsyncSession, principal: Principal, order_id: UUID)
     return await _shopkeeper_transition(session, principal, order_id, OrderStatus.PREPARING)
 
 
-async def ready(session: AsyncSession, principal: Principal, order_id: UUID) -> OrderDetail:
-    return await _shopkeeper_transition(session, principal, order_id, OrderStatus.READY_FOR_PICKUP)
+async def ready(
+    session: AsyncSession, principal: Principal, order_id: UUID, rider_fee: Decimal
+) -> OrderDetail:
+    """Mark an order ready for pickup and hand it to a rider inside the same
+    transaction. When nobody is online the order waits for the catch-up pass a
+    rider triggers by going online."""
+    # Deferred import: app.riders.service imports this module's state machine.
+    from app.riders.service import auto_assign_ready_order
+
+    order = await _load_shop_order(session, principal, order_id, for_update=True)
+    _assert_transition(order.status, OrderStatus.READY_FOR_PICKUP)
+    previous = order.status
+    order.status = OrderStatus.READY_FOR_PICKUP
+    session.add(
+        OrderStateHistory(
+            order_id=order.id,
+            from_state=previous,
+            to_state=OrderStatus.READY_FOR_PICKUP,
+            actor_user_id=principal.user_id,
+            actor_role='shopkeeper',
+            reason='ready for pickup',
+        )
+    )
+    await session.flush()
+    await auto_assign_ready_order(session, order, rider_fee)
+    await session.commit()
+    _o, detail = await _load_detail(session, order.id, include_customer=True)
+    return detail
 
 
 __all__ = [

@@ -47,8 +47,9 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(RequestValidationError)
     async def _validation_exception(_: Request, exc: RequestValidationError) -> JSONResponse:
+        # Literal 422: newer Starlette deprecates HTTP_422_UNPROCESSABLE_ENTITY.
         return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             content=_envelope(
                 'validation_failed', 'Request validation failed', jsonable_encoder(exc.errors())
             ),

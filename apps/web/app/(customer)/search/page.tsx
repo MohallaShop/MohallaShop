@@ -1,13 +1,11 @@
 import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
 import { Container } from '@/components/layout/Container'
 import { PageHeader, EmptyState, ErrorState } from '@/components/ui/StateFeedback'
 import { ProductSearchCard } from '@/components/customer/ProductSearchCard'
 import { SearchBar } from '@/components/customer/SearchBar'
 import { Pagination } from '@/components/ui/Pagination'
 import { listShops, searchProducts } from '@/lib/api/shops'
-import { requireServerToken } from '@/lib/api/session'
-import { isAuthError } from '@/lib/api/errors'
+import { getServerAuth } from '@/lib/api/session'
 import type { ProductSummary, ShopSummary } from '@/lib/api/types'
 
 export const metadata: Metadata = {
@@ -19,7 +17,8 @@ export const dynamic = 'force-dynamic'
 type SP = { q?: string; category?: string; page?: string }
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<SP> }) {
-  const token = await requireServerToken('/search')
+  // Guest-browsable catalogue page (ADR-0006).
+  const token = (await getServerAuth())?.token ?? null
   const sp = await searchParams
   const q = sp.q?.trim() || undefined
   const categoryId = sp.category?.trim() || undefined
@@ -46,7 +45,6 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
       shops = shopsPage.items
     }
   } catch (err) {
-    if (isAuthError(err)) redirect('/login?next=/search')
     return <ErrorState error={err} />
   }
 

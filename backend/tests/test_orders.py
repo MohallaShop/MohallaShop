@@ -37,6 +37,15 @@ async def test_create_order_success(client, db, customer_headers) -> None:
     assert cart.json()['shop_id'] is None
 
 
+async def test_create_order_charges_shop_delivery_fee(client, db, customer_headers) -> None:
+    # The fee is snapshotted from the shop at checkout: subtotal + fee = total.
+    _, product_id = await seed_shop_with_product(db, SHOPKEEPER_ID, delivery_fee=Decimal('20'))
+    order = await place_order(client, customer_headers, product_id, qty=1)
+    assert order['subtotal'] == '50.00'
+    assert order['delivery_fee'] == '20.00'
+    assert order['total_amount'] == '70.00'
+
+
 async def test_insufficient_inventory(client, db, customer_headers) -> None:
     _, product_id = await seed_shop_with_product(db, SHOPKEEPER_ID, qty=1)
     addr = await client.post(

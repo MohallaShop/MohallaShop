@@ -1,13 +1,11 @@
 import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
 import { Container } from '@/components/layout/Container'
 import { PageHeader, EmptyState, ErrorState } from '@/components/ui/StateFeedback'
 import { ShopCard } from '@/components/customer/ShopCard'
 import { SearchBar } from '@/components/customer/SearchBar'
 import { Pagination } from '@/components/ui/Pagination'
 import { listShops } from '@/lib/api/shops'
-import { requireServerToken } from '@/lib/api/session'
-import { isAuthError } from '@/lib/api/errors'
+import { getServerAuth } from '@/lib/api/session'
 
 export const metadata: Metadata = {
   title: 'Shops',
@@ -18,7 +16,8 @@ export const dynamic = 'force-dynamic'
 type SP = { q?: string; page?: string; city?: string }
 
 export default async function ShopsPage({ searchParams }: { searchParams: Promise<SP> }) {
-  const token = await requireServerToken('/shops')
+  // Guest-browsable catalogue page (ADR-0006).
+  const token = (await getServerAuth())?.token ?? null
   const sp = await searchParams
   const q = sp.q?.trim() || undefined
   const city = sp.city?.trim() || undefined
@@ -28,7 +27,6 @@ export default async function ShopsPage({ searchParams }: { searchParams: Promis
   try {
     result = await listShops(token, { q, city, page, page_size: 12 })
   } catch (err) {
-    if (isAuthError(err)) redirect('/login?next=/shops')
     return <ErrorState error={err} />
   }
 

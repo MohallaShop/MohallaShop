@@ -31,12 +31,14 @@ async def seed_shop_with_product(
     product_name: str = 'Wheat Atta',
     product_active: bool = True,
     shop_active: bool = True,
+    delivery_fee: Decimal = Decimal('0'),
 ) -> tuple[UUID, UUID]:
     await ensure_user_row(session, owner_id)
     shop = Shop(
         owner_user_id=owner_id,
         name=shop_name,
         status=ShopStatus.ACTIVE if shop_active else ShopStatus.INACTIVE,
+        delivery_fee=delivery_fee,
     )
     session.add(shop)
     await session.flush()
@@ -106,7 +108,14 @@ async def place_order(
     addr = await client.post(
         '/api/v1/me/addresses',
         headers=headers,
-        json={'line1': '1 Main St', 'city': 'Pune', 'state': 'MH', 'pincode': '411001'},
+        json={
+            'line1': '1 Main St',
+            'city': 'Pune',
+            'state': 'MH',
+            'pincode': '411001',
+            'contact_name': 'Test Customer',
+            'contact_phone': '+919999990000',
+        },
     )
     assert addr.status_code == 201, addr.text
     add = await client.post(
