@@ -2,6 +2,7 @@
 
 import { Header } from './Header'
 import { BottomNav } from './BottomNav'
+import { CustomerSideRail } from './CustomerSideRail'
 import {
   ADMIN_MOBILE_NAV,
   ADMIN_NAV,
@@ -13,6 +14,7 @@ import {
   SHOPKEEPER_NAV,
   type NavItem,
 } from '@/lib/config/nav'
+import { cn } from '@/lib/utils/cn'
 
 export type AppRole = 'customer' | 'shopkeeper' | 'rider' | 'admin'
 
@@ -55,6 +57,7 @@ export function AppShell({
 }) {
   const navItems = NAV_BY_ROLE[role]
   const mobileNavItems = MOBILE_NAV_BY_ROLE[role] ?? navItems
+  const hasCustomerRail = role === 'customer'
 
   return (
     <div className="bg-background min-h-dvh">
@@ -68,8 +71,14 @@ export function AppShell({
       />
 
       <main>
-        <div className="mx-auto w-full max-w-7xl px-4 py-5 pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:px-6 md:py-7 md:pb-12">
-          {children}
+        <div
+          className={cn(
+            'mx-auto w-full max-w-7xl px-4 py-5 pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:px-6 md:py-7 md:pb-12',
+            hasCustomerRail && 'lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-6',
+          )}
+        >
+          {hasCustomerRail ? <CustomerSideRail /> : null}
+          <div className="min-w-0">{children}</div>
         </div>
       </main>
 

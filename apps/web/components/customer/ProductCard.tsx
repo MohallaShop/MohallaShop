@@ -2,18 +2,20 @@ import { PackageIcon } from '@/components/icons'
 import { Badge } from '@/components/ui/Badge'
 import { AddProductButton } from './AddProductButton'
 import type { ProductOut } from '@/lib/api/types'
+import { productImageUrl } from '@/lib/catalog/productImages'
 import { formatMoney } from '@/lib/utils/format'
 
 export function ProductCard({ product }: { product: ProductOut }) {
   const available = product.in_stock
+  const imageUrl = productImageUrl(product)
   return (
-    <div className="border-border bg-surface shadow-card flex min-w-0 flex-col rounded-2xl border p-4">
-      <div className="bg-surface-hover text-muted mb-3 grid h-20 place-items-center overflow-hidden rounded-xl text-xl">
-        {product.image_url ? (
+    <div className="border-border bg-surface shadow-card flex min-w-0 flex-col rounded-2xl border p-3 sm:p-4">
+      <div className="bg-surface-hover text-muted mb-3 grid h-24 place-items-center overflow-hidden rounded-xl text-xl sm:h-28">
+        {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={product.image_url}
-            alt=""
+            src={imageUrl}
+            alt={product.name}
             className="h-full w-full object-cover"
             loading="lazy"
           />

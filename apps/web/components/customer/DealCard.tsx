@@ -3,6 +3,7 @@ import { PackageIcon } from '@/components/icons'
 import { Badge } from '@/components/ui/Badge'
 import { AddProductButton } from './AddProductButton'
 import type { ProductOut } from '@/lib/api/types'
+import { productImageUrl } from '@/lib/catalog/productImages'
 import { formatMoney } from '@/lib/utils/format'
 
 const TINTS = [
@@ -14,17 +15,18 @@ const TINTS = [
 ]
 
 export function DealCard({ product, index }: { product: ProductOut; index: number }) {
+  const imageUrl = productImageUrl(product)
   return (
     <article className="border-border bg-surface shadow-card hover:shadow-card-hover flex w-[11rem] shrink-0 snap-start flex-col overflow-hidden rounded-lg border transition">
       <Link
         href={`/products/${product.id}`}
         className={`${TINTS[index % TINTS.length]} relative grid h-28 place-items-center ring-1`}
       >
-        {product.image_url ? (
+        {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={product.image_url}
-            alt=""
+            src={imageUrl}
+            alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover"
           />

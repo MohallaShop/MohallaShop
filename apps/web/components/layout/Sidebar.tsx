@@ -4,9 +4,11 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils/cn'
 import { siteConfig } from '@/lib/config/site'
+import { LocationPermissionButton } from './LocationPermissionButton'
 import type { NavItem } from '@/lib/config/nav'
 
-function isActive(pathname: string, href: string): boolean {
+function isActive(pathname: string, href: string | undefined): boolean {
+  if (!href) return false
   if (href === '/') return pathname === '/'
   return pathname === href || pathname.startsWith(`${href}/`)
 }
@@ -42,9 +44,26 @@ export function Sidebar({
         {navItems.map((item) => {
           const active = isActive(pathname, item.href)
           const Icon = item.icon
+          if (item.action === 'location') {
+            return <LocationPermissionButton key={item.label} active={active} />
+          }
+          if (!item.href) {
+            return (
+              <button
+                key={item.label}
+                type="button"
+                disabled
+                aria-disabled="true"
+                className="text-muted flex w-full cursor-not-allowed items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium opacity-60"
+              >
+                <Icon className="h-5 w-5 shrink-0" />
+                <span className="flex-1">{item.label}</span>
+              </button>
+            )
+          }
           return (
             <Link
-              key={item.href}
+              key={item.href ?? item.label}
               href={item.href}
               aria-current={active ? 'page' : undefined}
               className={cn(

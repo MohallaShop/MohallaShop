@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/ui/StateFeedback'
 import { classifyError } from '@/lib/api/errors'
 import { getBrowserToken } from '@/lib/api/browser'
 import { clearCart, deleteCartItem, getCart, updateCartItem } from '@/lib/api/cart'
+import { productImageUrl } from '@/lib/catalog/productImages'
 import { formatMoney } from '@/lib/utils/format'
 import type { CartOut } from '@/lib/api/types'
 
@@ -109,53 +110,58 @@ export function CartManager({ initial }: { initial: CartOut }) {
       ) : null}
 
       <ul className="space-y-3">
-        {cart.items.map((it) => (
-          <li
-            key={it.id}
-            className="border-border bg-surface shadow-card flex gap-3 rounded-2xl border p-4 sm:gap-4"
-          >
-            <div className="bg-surface-hover text-muted grid h-16 w-16 shrink-0 place-items-center rounded-xl text-xl">
-              {it.image_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={it.image_url}
-                  alt=""
-                  className="h-full w-full rounded-xl object-cover"
-                  loading="lazy"
-                />
-              ) : (
-                <PackageIcon className="h-7 w-7" />
-              )}
-            </div>
-            <div className="flex min-w-0 flex-1 flex-col">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="text-content truncate font-semibold">{it.product_name}</p>
-                  <p className="text-muted text-xs">
-                    {formatMoney(it.unit_price)} / {it.unit}
+        {cart.items.map((it) => {
+          const imageUrl = productImageUrl({ name: it.product_name, image_url: it.image_url })
+          return (
+            <li
+              key={it.id}
+              className="border-border bg-surface shadow-card flex gap-3 rounded-2xl border p-4 sm:gap-4"
+            >
+              <div className="bg-surface-hover text-muted grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-xl text-xl">
+                {imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={imageUrl}
+                    alt={it.product_name}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <PackageIcon className="h-7 w-7" />
+                )}
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-content truncate font-semibold">{it.product_name}</p>
+                    <p className="text-muted text-xs">
+                      {formatMoney(it.unit_price)} / {it.unit}
+                    </p>
+                  </div>
+                  <p className="text-content shrink-0 font-semibold">
+                    {formatMoney(it.line_total)}
                   </p>
                 </div>
-                <p className="text-content shrink-0 font-semibold">{formatMoney(it.line_total)}</p>
+                <div className="mt-auto flex items-center justify-between pt-3">
+                  <QuantityStepper
+                    value={it.quantity}
+                    onChange={(q) => changeQty(it.id, q)}
+                    disabled={busyId === it.id}
+                    ariaLabel={`Quantity for ${it.product_name}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeItem(it.id)}
+                    disabled={busyId === it.id}
+                    className="text-danger text-sm font-medium hover:underline disabled:opacity-50"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
-              <div className="mt-auto flex items-center justify-between pt-3">
-                <QuantityStepper
-                  value={it.quantity}
-                  onChange={(q) => changeQty(it.id, q)}
-                  disabled={busyId === it.id}
-                  ariaLabel={`Quantity for ${it.product_name}`}
-                />
-                <button
-                  type="button"
-                  onClick={() => removeItem(it.id)}
-                  disabled={busyId === it.id}
-                  className="text-danger text-sm font-medium hover:underline disabled:opacity-50"
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-          </li>
-        ))}
+            </li>
+          )
+        })}
       </ul>
 
       <div className="border-border bg-surface shadow-card mt-6 rounded-2xl border p-5">

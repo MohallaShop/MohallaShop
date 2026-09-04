@@ -3,18 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { useTheme, type Theme } from '@/components/providers/ThemeProvider'
-import {
-  BellIcon,
-  ChevronDownIcon,
-  HelpCircleIcon,
-  MapPinIcon,
-  MoonIcon,
-  SearchIcon,
-  StoreIcon,
-  SunIcon,
-  UserIcon,
-} from '@/components/icons'
+import { CartIcon, SearchIcon, StoreIcon, UserIcon } from '@/components/icons'
 import { cn } from '@/lib/utils/cn'
 import { siteConfig } from '@/lib/config/site'
 import type { NavItem } from '@/lib/config/nav'
@@ -26,9 +15,7 @@ export function Header({
   brand,
   navItems,
   userName,
-  location,
   signedIn = true,
-  notificationCount = 0,
 }: {
   role: ShellRole
   brand?: string
@@ -43,7 +30,6 @@ export function Header({
   const [q, setQ] = useState('')
   const firstName = userName?.trim().split(/\s+/)[0] ?? null
   const isCustomer = role === 'customer'
-  const utility = utilityLink(role)
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -68,98 +54,55 @@ export function Header({
           </span>
         </Link>
 
-        <nav
-          aria-label="Primary"
-          className="scrollbar-none hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto md:flex"
-        >
-          {navItems.map((item) => {
-            const Icon = item.icon
-            const active = isActive(pathname, item.href)
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? 'page' : undefined}
-                className={cn(
-                  'inline-flex h-10 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition',
-                  active
-                    ? 'bg-brand-500/10 text-brand-700 dark:text-brand-300'
-                    : 'text-content/70 hover:bg-surface-hover hover:text-content',
-                )}
-              >
-                <Icon className="h-4.5 w-4.5" />
-                <span>{item.label}</span>
-              </Link>
-            )
-          })}
-        </nav>
+        {!isCustomer ? (
+          <nav
+            aria-label="Primary"
+            className="scrollbar-none hidden min-w-0 flex-1 items-center gap-1 overflow-x-auto md:flex"
+          >
+            {navItems.map((item) => {
+              const Icon = item.icon
+              const active = isActive(pathname, item.href)
+              if (!item.href) return null
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? 'page' : undefined}
+                  className={cn(
+                    'inline-flex h-10 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-semibold transition',
+                    active
+                      ? 'bg-brand-500/10 text-brand-700 dark:text-brand-300'
+                      : 'text-content/70 hover:bg-surface-hover hover:text-content',
+                  )}
+                >
+                  <Icon className="h-4.5 w-4.5" />
+                  <span>{item.label}</span>
+                </Link>
+              )
+            })}
+          </nav>
+        ) : null}
 
         {isCustomer ? (
           <SearchForm
             value={q}
             onChange={setQ}
             onSubmit={submit}
-            className="hidden w-full max-w-sm shrink lg:block"
+            className="hidden min-w-0 flex-1 md:block md:max-w-md lg:max-w-lg"
           />
         ) : null}
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
           {isCustomer ? (
-            <Link
-              href={signedIn ? '/profile' : '/login'}
-              className="hover:bg-surface-hover hidden items-center gap-2 rounded-lg px-2 py-1.5 transition xl:flex"
-            >
-              <span className="bg-brand-500/10 grid h-8 w-8 place-items-center rounded-lg">
-                <MapPinIcon className="text-brand-700 dark:text-brand-300 h-4 w-4" />
-              </span>
-              <span className="leading-tight">
-                <span className="text-muted block text-[10px] font-semibold uppercase">
-                  Deliver to
-                </span>
-                <span className="text-content flex items-center gap-1 text-sm font-bold">
-                  {location ?? (signedIn ? 'Set location' : 'Sign in')}
-                  <ChevronDownIcon className="text-muted h-3.5 w-3.5" />
-                </span>
-              </span>
-            </Link>
+            <CustomerActions signedIn={signedIn} firstName={firstName} />
           ) : (
-            <Link
-              href="/home"
-              className="text-content/70 hover:text-content hover:bg-surface-hover hidden rounded-lg px-3 py-2 text-sm font-semibold transition lg:inline-flex"
-            >
-              Customer site
-            </Link>
-          )}
-
-          {utility ? (
-            <Link
-              href={utility.href}
-              className="text-content/70 hover:text-content hover:bg-surface-hover hidden items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-semibold transition sm:flex"
-            >
-              <HelpCircleIcon className="h-5 w-5" />
-              <span className="hidden xl:inline">{utility.label}</span>
-            </Link>
-          ) : null}
-
-          <ThemeSwitcher />
-
-          {signedIn ? (
             <>
-              {isCustomer ? (
-                <Link
-                  href="/orders"
-                  aria-label="Orders and notifications"
-                  className="text-content/70 hover:text-content hover:bg-surface-hover relative rounded-lg p-2 transition"
-                >
-                  <BellIcon className="h-5 w-5" />
-                  {notificationCount > 0 ? (
-                    <span className="bg-brand-600 absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[9px] font-bold text-white shadow-sm">
-                      {notificationCount}
-                    </span>
-                  ) : null}
-                </Link>
-              ) : null}
-
+              <Link
+                href="/home"
+                className="text-content/70 hover:text-content hover:bg-surface-hover hidden rounded-lg px-3 py-2 text-sm font-semibold transition lg:inline-flex"
+              >
+                Customer site
+              </Link>
               <Link
                 href={accountHref(role)}
                 aria-label="Account"
@@ -176,13 +119,6 @@ export function Header({
                 </span>
               </Link>
             </>
-          ) : (
-            <Link
-              href="/login"
-              className="bg-brand-600 hover:bg-brand-700 inline-flex h-10 items-center justify-center rounded-lg px-4 text-sm font-bold text-white transition"
-            >
-              Sign in
-            </Link>
           )}
         </div>
       </div>
@@ -193,6 +129,42 @@ export function Header({
         </div>
       ) : null}
     </header>
+  )
+}
+
+function CustomerActions({
+  signedIn,
+  firstName,
+}: {
+  signedIn: boolean
+  firstName: string | null
+}) {
+  return (
+    <>
+      <Link
+        href="/cart"
+        className="border-border bg-surface text-content hover:bg-surface-hover inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border px-2.5 text-sm font-bold transition min-[360px]:px-3"
+      >
+        <CartIcon className="h-4.5 w-4.5" />
+        <span>Cart</span>
+      </Link>
+      <Link
+        href={signedIn ? '/profile' : '/login'}
+        aria-label={signedIn ? 'Account' : 'Sign in'}
+        className={cn(
+          'inline-flex h-10 items-center justify-center rounded-lg px-3 text-sm font-bold transition min-[360px]:px-4',
+          signedIn
+            ? 'border-border bg-surface text-content hover:bg-surface-hover border'
+            : 'bg-brand-600 text-white hover:bg-brand-700',
+        )}
+      >
+        {signedIn ? (
+          <span className="max-w-20 truncate">{firstName ?? 'Account'}</span>
+        ) : (
+          'Sign in'
+        )}
+      </Link>
+    </>
   )
 }
 
@@ -231,52 +203,8 @@ function SearchForm({
   )
 }
 
-function ThemeSwitcher() {
-  const { theme, resolvedTheme, setTheme } = useTheme()
-
-  function cycleTheme() {
-    const next: Record<Theme, Theme> = { light: 'dark', dark: 'system', system: 'light' }
-    setTheme(next[theme])
-  }
-
-  return (
-    <>
-      <div className="border-border bg-background hidden rounded-lg border p-0.5 sm:flex">
-        {(['light', 'dark', 'system'] as Theme[]).map((option) => (
-          <button
-            key={option}
-            type="button"
-            onClick={() => setTheme(option)}
-            aria-pressed={theme === option}
-            className={cn(
-              'h-8 rounded-md px-2.5 text-xs font-semibold capitalize transition',
-              theme === option
-                ? 'bg-surface text-content shadow-sm'
-                : 'text-muted hover:text-content hover:bg-surface-hover',
-            )}
-          >
-            {option}
-          </button>
-        ))}
-      </div>
-      <button
-        type="button"
-        onClick={cycleTheme}
-        aria-label={`Current theme: ${theme}. Click to cycle theme.`}
-        className="text-content/70 hover:text-content hover:bg-surface-hover grid h-10 w-10 place-items-center rounded-lg transition sm:hidden"
-        title={`Theme: ${theme}`}
-      >
-        {resolvedTheme === 'dark' ? (
-          <SunIcon className="h-5 w-5 text-amber-400" />
-        ) : (
-          <MoonIcon className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-        )}
-      </button>
-    </>
-  )
-}
-
-function isActive(pathname: string, href: string): boolean {
+function isActive(pathname: string, href: string | undefined): boolean {
+  if (!href) return false
   if (href === '/') return pathname === '/'
   return pathname === href || pathname.startsWith(`${href}/`)
 }
@@ -286,13 +214,6 @@ function roleHome(role: ShellRole): string {
   if (role === 'shopkeeper') return '/shop'
   if (role === 'rider') return '/rider/dashboard'
   return '/home'
-}
-
-function utilityLink(role: ShellRole): { href: string; label: string } | null {
-  if (role === 'customer') return { href: '/support', label: 'Support' }
-  if (role === 'shopkeeper') return { href: '/shop/orders', label: 'Orders' }
-  if (role === 'rider') return { href: '/rider/deliveries', label: 'Deliveries' }
-  return null
 }
 
 function accountHref(role: ShellRole): string {

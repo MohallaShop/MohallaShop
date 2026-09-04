@@ -2,7 +2,6 @@ import type { ComponentType, SVGProps } from 'react'
 import {
   BarChartIcon,
   DashboardIcon,
-  HomeIcon,
   ReceiptIcon,
   SearchIcon,
   SettingsIcon,
@@ -14,35 +13,37 @@ import {
   HeartIcon,
   GridIcon,
   CartIcon,
+  MapPinIcon,
 } from '@/components/icons'
 
 export type IconType = ComponentType<SVGProps<SVGSVGElement>>
+export type NavAction = 'location'
 
 export interface NavItem {
   label: string
-  href: string
+  href?: string
   icon: IconType
+  action?: NavAction
+  disabled?: boolean
   /** Small pill shown next to the label (e.g. "New"). */
   badge?: string
 }
 
 /**
- * Customer navigation. Only surfaces that have real backend support are listed.
- * Wallet, credits, subscriptions, referrals and seller onboarding are omitted
- * because their backend domains do not exist yet.
+ * Customer navigation. Unsupported commerce features stay in the left rail as
+ * locked placeholders, so this set only carries available customer routes.
  */
 export const CUSTOMER_NAV: NavItem[] = [
-  { label: 'Home', href: '/home', icon: HomeIcon },
-  { label: 'Shops', href: '/shops', icon: StoreIcon },
+  { label: 'Location', action: 'location', icon: MapPinIcon },
+  { label: 'Browse Shops', href: '/shops', icon: StoreIcon },
   { label: 'Categories', href: '/categories', icon: GridIcon },
-  { label: 'Cart', href: '/cart', icon: CartIcon },
-  { label: 'Orders', href: '/orders', icon: ReceiptIcon },
+  { label: 'My Orders', href: '/orders', icon: ReceiptIcon },
   { label: 'Favorites', href: '/favorites', icon: HeartIcon },
 ]
 
 /** Compact subset for the mobile bottom bar (sidebar shows the full list). */
 export const CUSTOMER_MOBILE_NAV: NavItem[] = [
-  { label: 'Home', href: '/home', icon: HomeIcon },
+  { label: 'Location', action: 'location', icon: MapPinIcon },
   { label: 'Shops', href: '/shops', icon: StoreIcon },
   { label: 'Search', href: '/search', icon: SearchIcon },
   { label: 'Cart', href: '/cart', icon: CartIcon },

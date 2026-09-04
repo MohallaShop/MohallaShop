@@ -21,8 +21,10 @@ export interface FProduct {
   id: string
   shop_id: string
   name: string
+  description?: string | null
   price: number
   unit: string
+  image_url?: string | null
   in_stock: boolean
   qty: number
 }
@@ -79,12 +81,17 @@ export interface FShop {
 const SHOP_A: FShop = { id: 'shop-a', name: 'Sharma Kirana', owner: 'u-shop', active: true }
 const SHOP_B: FShop = { id: 'shop-b', name: 'Other Store', owner: 'u-other', active: true }
 
+const img = (photoId: string) =>
+  `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=640&q=80`
+
 const P_A1: FProduct = {
   id: 'p-a1',
   shop_id: 'shop-a',
   name: 'Wheat Atta',
+  description: 'Stone-ground daily wheat flour.',
   price: 52,
   unit: '1 kg',
+  image_url: img('photo-1574323347407-f5e1ad6d020b'),
   in_stock: true,
   qty: 10,
 }
@@ -92,8 +99,10 @@ const P_A2: FProduct = {
   id: 'p-a2',
   shop_id: 'shop-a',
   name: 'Milk',
+  description: 'Fresh toned milk pouch.',
   price: 25,
   unit: '500 ml',
+  image_url: img('photo-1563636619-e9143da7973b'),
   in_stock: true,
   qty: 20,
 }
@@ -101,8 +110,10 @@ const P_B1: FProduct = {
   id: 'p-b1',
   shop_id: 'shop-b',
   name: 'Rice',
+  description: 'Long-grain basmati rice.',
   price: 128,
   unit: '5 kg',
+  image_url: img('photo-1586201375761-83865001e31c'),
   in_stock: true,
   qty: 5,
 }
@@ -110,10 +121,45 @@ const P_A3: FProduct = {
   id: 'p-a3',
   shop_id: 'shop-a',
   name: 'Bread',
+  description: 'Soft brown bread loaf.',
   price: 45,
   unit: '400 g',
+  image_url: img('photo-1509440159596-0249088772ff'),
   in_stock: false,
   qty: 0,
+}
+const P_A4: FProduct = {
+  id: 'p-a4',
+  shop_id: 'shop-a',
+  name: 'Fresh Tomatoes',
+  description: 'Firm tomatoes for daily cooking.',
+  price: 30,
+  unit: '500 g',
+  image_url: img('photo-1546094096-0df4bcaaa337'),
+  in_stock: true,
+  qty: 32,
+}
+const P_A5: FProduct = {
+  id: 'p-a5',
+  shop_id: 'shop-a',
+  name: 'Bananas',
+  description: 'Sweet yellow bananas.',
+  price: 62,
+  unit: '1 dozen',
+  image_url: img('photo-1571771894821-ce9b6c11b08e'),
+  in_stock: true,
+  qty: 18,
+}
+const P_A6: FProduct = {
+  id: 'p-a6',
+  shop_id: 'shop-a',
+  name: 'Farm Eggs',
+  description: 'Clean packed eggs.',
+  price: 72,
+  unit: '6 pcs',
+  image_url: img('photo-1518569656558-1f25e69d93d7'),
+  in_stock: true,
+  qty: 24,
 }
 
 let shops: FShop[]
@@ -125,7 +171,7 @@ let orders: FOrder[]
 export function resetDb() {
   shops = [SHOP_A, SHOP_B]
   // Clone so stock mutations don't leak between tests.
-  products = [P_A1, P_A2, P_A3, P_B1].map((p) => ({ ...p }))
+  products = [P_A1, P_A2, P_A3, P_A4, P_A5, P_A6, P_B1].map((p) => ({ ...p }))
   cartItems = []
   addresses = []
   orders = []
@@ -202,7 +248,7 @@ function cartPayload(userId: string) {
         product_name: p.name,
         unit: p.unit,
         unit_price: money(p.price),
-        image_url: null,
+        image_url: p.image_url ?? null,
         quantity: c.quantity,
         line_total: money(p.price * c.quantity),
       }
@@ -312,10 +358,10 @@ export async function fakeFetch(input: RequestInfo | URL, init?: RequestInit): P
         id: p.id,
         shop_id: p.shop_id,
         name: p.name,
-        description: null,
+        description: p.description ?? null,
         price: money(p.price),
         unit: p.unit,
-        image_url: null,
+        image_url: p.image_url ?? null,
         in_stock: p.in_stock,
         category_id: null,
       }))
@@ -329,10 +375,10 @@ export async function fakeFetch(input: RequestInfo | URL, init?: RequestInit): P
       id: p.id,
       shop_id: p.shop_id,
       name: p.name,
-      description: null,
+      description: p.description ?? null,
       price: money(p.price),
       unit: p.unit,
-      image_url: null,
+      image_url: p.image_url ?? null,
       in_stock: p.in_stock,
       category_id: null,
     })

@@ -58,22 +58,24 @@ export function CategoryRow({ categories }: { categories: CategorySummary[] }) {
   if (categories.length === 0) return null
 
   return (
-    <section aria-label="Categories" className="mt-6">
-      <div className="scrollbar-thin -mx-1 flex gap-4 overflow-x-auto px-1 pb-2">
+    <section aria-label="Categories" className="mt-5 sm:mt-6">
+      <div className="scrollbar-thin -mx-3 flex gap-3 overflow-x-auto px-3 pb-2 pt-1.5 sm:-mx-1 sm:gap-4 sm:px-1">
         {categories.map((c) => {
           const style = SLUG_STYLE[c.slug] ?? FALLBACK_STYLE
           return (
             <Link
               key={c.id}
               href={`/search?category=${encodeURIComponent(c.id)}`}
-              className="group flex w-[4.75rem] shrink-0 flex-col items-center gap-2 transition"
+              className="group flex w-16 shrink-0 flex-col items-center gap-1.5 transition sm:w-[4.75rem] sm:gap-2"
             >
               <span
-                className={`${style.tint} ${style.ring} shadow-card bg-surface group-hover:shadow-card-hover grid h-14 w-14 place-items-center rounded-2xl text-2xl ring-1 transition-all duration-200 group-hover:-translate-y-1`}
+                className={`${style.tint} ${style.ring} shadow-card bg-surface group-hover:shadow-card-hover grid h-12 w-12 place-items-center rounded-xl text-xl leading-none ring-1 transition-all duration-200 sm:h-14 sm:w-14 sm:rounded-2xl sm:text-2xl md:group-hover:-translate-y-1`}
               >
-                {style.emoji}
+                <span aria-hidden="true" className="block leading-none">
+                  {style.emoji}
+                </span>
               </span>
-              <span className="text-content/85 group-hover:text-brand-600 dark:group-hover:text-brand-400 text-center text-xs font-semibold leading-tight transition">
+              <span className="text-content/85 group-hover:text-brand-600 dark:group-hover:text-brand-400 text-center text-[11px] font-semibold leading-tight transition sm:text-xs">
                 {c.name}
               </span>
             </Link>

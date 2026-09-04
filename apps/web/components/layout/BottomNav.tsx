@@ -3,9 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils/cn'
+import { LocationPermissionButton } from './LocationPermissionButton'
 import type { NavItem } from '@/lib/config/nav'
 
-function isActive(pathname: string, href: string): boolean {
+function isActive(pathname: string, href: string | undefined): boolean {
+  if (!href) return false
   if (href === '/') return pathname === '/'
   return pathname === href || pathname.startsWith(`${href}/`)
 }
@@ -25,9 +27,13 @@ export function BottomNav({ navItems }: { navItems: NavItem[] }) {
       {navItems.map((item) => {
         const active = isActive(pathname, item.href)
         const Icon = item.icon
+        if (item.action === 'location') {
+          return <LocationPermissionButton key={item.label} variant="bottom" active={active} />
+        }
+        if (!item.href) return null
         return (
           <Link
-            key={item.href}
+            key={item.href ?? item.label}
             href={item.href}
             aria-current={active ? 'page' : undefined}
             className={cn(

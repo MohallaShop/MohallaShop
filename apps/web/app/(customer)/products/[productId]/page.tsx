@@ -9,6 +9,7 @@ import { ProductDetailAdd } from '@/components/customer/ProductDetailAdd'
 import { getProduct } from '@/lib/api/shops'
 import { getServerAuth } from '@/lib/api/session'
 import { isNotFound } from '@/lib/api/errors'
+import { productImageUrl } from '@/lib/catalog/productImages'
 import { formatMoney } from '@/lib/utils/format'
 
 export const dynamic = 'force-dynamic'
@@ -44,6 +45,7 @@ export default async function ProductDetailPage({
     if (isNotFound(err)) notFound()
     return <ErrorState error={err} />
   }
+  const imageUrl = productImageUrl(product)
 
   return (
     <Container>
@@ -54,13 +56,13 @@ export default async function ProductDetailPage({
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="bg-brand-50 text-brand-700 grid aspect-square place-items-center rounded-2xl text-6xl">
-          {product.image_url ? (
+        <div className="bg-brand-50 text-brand-700 grid aspect-square place-items-center overflow-hidden rounded-2xl text-6xl">
+          {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={product.image_url}
-              alt=""
-              className="h-full w-full rounded-2xl object-cover"
+              src={imageUrl}
+              alt={product.name}
+              className="h-full w-full object-cover"
             />
           ) : (
             <PackageIcon className="h-16 w-16" />
