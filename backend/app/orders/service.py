@@ -178,8 +178,8 @@ async def create_order(
     address_id: UUID,
     notes: str | None,
 ) -> OrderDetail:
-    uid = principal.user_id
-    await ensure_user(session, principal)
+    user = await ensure_user(session, principal)
+    uid = user.id
 
     # Lock the active cart.
     cart = (
@@ -356,13 +356,13 @@ async def list_customer_orders(
     page_size: int,
     status: OrderStatus | None = None,
 ) -> tuple[list[tuple[Order, int]], int]:
+    user = await ensure_user(session, principal)
+    uid = user.id
     base = select(Order, func.count(OrderItem.id))
     base = base.join(OrderItem, OrderItem.order_id == Order.id, isouter=True)
     base = base.group_by(Order.id).order_by(Order.placed_at.desc())
-    where = [Order.customer_user_id == principal.user_id]
-    count_stmt = (
-        select(func.count()).select_from(Order).where(Order.customer_user_id == principal.user_id)
-    )
+    where = [Order.customer_user_id == uid]
+    count_stmt = select(func.count()).select_from(Order).where(Order.customer_user_id == uid)
     if status is not None:
         where.append(Order.status == status)
         count_stmt = count_stmt.where(Order.status == status)
@@ -380,17 +380,20 @@ async def list_customer_orders(
 async def get_customer_order(
     session: AsyncSession, principal: Principal, order_id: UUID
 ) -> OrderDetail:
+    user = await ensure_user(session, principal)
     order, detail = await _load_detail(session, order_id, include_customer=False)
-    if order.customer_user_id != principal.user_id:
+    if order.customer_user_id != user.id:
         raise NotFoundError('Order not found')
     return detail
 
 
 async def cancel_order(session: AsyncSession, principal: Principal, order_id: UUID) -> OrderDetail:
+    user = await ensure_user(session, principal)
+    uid = user.id
     order = (
         await session.execute(
             select(Order)
-            .where(Order.id == order_id, Order.customer_user_id == principal.user_id)
+            .where(Order.id == order_id, Order.customer_user_id == uid)
             .with_for_update()
         )
     ).scalar_one_or_none()
@@ -404,7 +407,7 @@ async def cancel_order(session: AsyncSession, principal: Principal, order_id: UU
             order_id=order.id,
             from_state=previous,
             to_state=OrderStatus.CANCELLED,
-            actor_user_id=principal.user_id,
+            actor_user_id=uid,
             actor_role='customer',
             reason='cancelled by customer',
         )
@@ -417,8 +420,9 @@ async def cancel_order(session: AsyncSession, principal: Principal, order_id: UU
 
 # ── Shopkeeper ─────────────────────────────────────────────────
 async def _resolve_shop_id(session: AsyncSession, principal: Principal) -> UUID:
+    user = await ensure_user(session, principal)
     shop_id = (
-        await session.execute(select(Shop.id).where(Shop.owner_user_id == principal.user_id))
+        await session.execute(select(Shop.id).where(Shop.owner_user_id == user.id))
     ).scalar_one_or_none()
     if shop_id is None:
         raise NotFoundError('You do not own a shop yet')
@@ -483,6 +487,7 @@ async def _shopkeeper_transition(
     target: OrderStatus,
     reason: str | None = None,
 ) -> OrderDetail:
+    user = await ensure_user(session, principal)
     order = await _load_shop_order(session, principal, order_id, for_update=True)
     _assert_transition(order.status, target)
     previous = order.status
@@ -492,7 +497,7 @@ async def _shopkeeper_transition(
             order_id=order.id,
             from_state=previous,
             to_state=target,
-            actor_user_id=principal.user_id,
+            actor_user_id=user.id,
             actor_role='shopkeeper',
             reason=reason,
         )
@@ -529,6 +534,7 @@ async def ready(
     # Deferred import: app.riders.service imports this module's state machine.
     from app.riders.service import auto_assign_ready_order
 
+    user = await ensure_user(session, principal)
     order = await _load_shop_order(session, principal, order_id, for_update=True)
     _assert_transition(order.status, OrderStatus.READY_FOR_PICKUP)
     previous = order.status
@@ -538,7 +544,7 @@ async def ready(
             order_id=order.id,
             from_state=previous,
             to_state=OrderStatus.READY_FOR_PICKUP,
-            actor_user_id=principal.user_id,
+            actor_user_id=user.id,
             actor_role='shopkeeper',
             reason='ready for pickup',
         )

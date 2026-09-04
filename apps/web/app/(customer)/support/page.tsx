@@ -16,7 +16,7 @@ const FAQS = [
   },
   {
     q: 'Which payment methods can I use?',
-    a: 'Cash on delivery is always available. Online payment (UPI, cards and wallets via Razorpay) appears at checkout when it is enabled for your area.',
+    a: 'This MVP currently supports cash on delivery. Online payments are intentionally not shown at checkout until the provider flow is added.',
   },
   {
     q: 'How do I track my order?',
@@ -28,11 +28,11 @@ const FAQS = [
   },
   {
     q: 'Something was wrong with my delivery. What now?',
-    a: 'Contact support below with your order number and we will work with the shop to make it right — missing items are refunded or replaced.',
+    a: 'Contact support below with your order number. The support team can review the issue with the shop.',
   },
   {
     q: 'How do I sell on MohallaShop?',
-    a: 'Create an account, then contact us to get your shop verified. Once approved, you can add products and start receiving orders from your neighbourhood.',
+    a: 'Sign in as a shopkeeper, register your shop from the shop dashboard, and wait for admin approval. Once approved, you can add products and receive orders.',
   },
 ]
 

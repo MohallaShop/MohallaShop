@@ -42,11 +42,11 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
           <ul className="border-border bg-surface shadow-card divide-border divide-y rounded-2xl border">
             {result.items.map((o) => (
               <li key={o.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-                <div>
-                  <p className="text-content font-semibold">{o.order_no}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-content truncate font-semibold">{o.order_no}</p>
                   <p className="text-muted text-xs">{formatDateTime(o.placed_at)}</p>
                 </div>
-                <div className="text-right">
+                <div className="shrink-0 text-right">
                   <p className="text-content font-semibold">{formatMoney(o.total_amount)}</p>
                   <p className="text-muted text-xs capitalize">{o.status.replace(/_/g, ' ')}</p>
                 </div>

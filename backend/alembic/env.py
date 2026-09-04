@@ -72,12 +72,12 @@ def do_run_migrations(connection: Connection) -> None:
 
 
 async def run_async_migrations() -> None:
-    # statement_cache_size=0 is required by Supabase's transaction pooler
-    # (pgbouncer cannot carry prepared statements across connections).
+    # Supabase's transaction pooler uses PgBouncer. Disable both SQLAlchemy's
+    # asyncpg prepared-statement cache and asyncpg's own statement cache.
     connectable = create_async_engine(
         DATABASE_URL,
         poolclass=pool.NullPool,
-        connect_args={'statement_cache_size': 0},
+        connect_args={'prepared_statement_cache_size': 0, 'statement_cache_size': 0},
     )
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)

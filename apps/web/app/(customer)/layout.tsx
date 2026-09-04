@@ -9,11 +9,10 @@ export const metadata: Metadata = {
 }
 
 export default async function CustomerLayout({ children }: { children: React.ReactNode }) {
-  // Header chrome (name + location) is best-effort: pages enforce auth
-  // themselves, so the shell must still render when these lookups fail.
   let name: string | null = null
   let location: string | null = null
   const auth = await getServerAuth()
+
   if (auth) {
     try {
       const [profile, addresses] = await Promise.all([
@@ -21,10 +20,10 @@ export default async function CustomerLayout({ children }: { children: React.Rea
         listAddresses(auth.token),
       ])
       name = profile.display_name
-      const addr = addresses.items.find((a) => a.is_default) ?? addresses.items[0]
-      if (addr) location = addr.label ? `${addr.label} · ${addr.city}` : addr.city
+      const addr = addresses.items.find((item) => item.is_default) ?? addresses.items[0]
+      if (addr) location = addr.label ? `${addr.label} - ${addr.city}` : addr.city
     } catch {
-      // Shell renders with generic account/location labels.
+      // Shell account and location chrome are best-effort.
     }
   }
 

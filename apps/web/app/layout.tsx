@@ -14,11 +14,11 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'MohallaShop — Your neighbourhood, delivered',
-    template: '%s · MohallaShop',
+    default: 'MohallaShop - Your neighbourhood, delivered',
+    template: '%s | MohallaShop',
   },
   description:
-    'Order daily essentials from trusted local shops in your neighbourhood. Fast delivery, fair prices, real people.',
+    'Browse local shops, place cash-on-delivery orders, and track shopkeeper and rider updates.',
   applicationName: 'MohallaShop',
   keywords: ['local shops', 'grocery delivery', 'neighbourhood marketplace', 'kirana', 'India'],
   authors: [{ name: 'MohallaShop' }],
@@ -26,8 +26,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     siteName: 'MohallaShop',
-    title: 'MohallaShop — Your neighbourhood, delivered',
-    description: 'Order daily essentials from trusted local shops near you.',
+    title: 'MohallaShop - Your neighbourhood, delivered',
+    description: 'Browse local shops and place cash-on-delivery orders near you.',
     url: siteUrl,
   },
   twitter: {
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#7c3aed',
+  themeColor: '#059669',
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',

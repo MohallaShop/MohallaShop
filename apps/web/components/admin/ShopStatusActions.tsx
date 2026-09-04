@@ -61,8 +61,8 @@ export function ShopStatusActions({ shopId, status }: { shopId: string; status: 
   if (actions.length === 0) return null
 
   return (
-    <div className="flex flex-col items-end gap-1">
-      <div className="flex gap-2">
+    <div className="flex min-w-0 flex-col items-start gap-1 sm:items-end">
+      <div className="flex flex-wrap gap-2 sm:justify-end">
         {actions.map((a) => (
           <Button
             key={a.target}

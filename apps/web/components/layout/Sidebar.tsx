@@ -11,10 +11,7 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`)
 }
 
-/**
- * Desktop vertical navigation (hidden on mobile). Premium feel with active
- * indicator, hover effects, and a buy-now-pay-later promo card at the bottom.
- */
+/** Desktop vertical navigation (hidden on mobile). */
 export function Sidebar({
   navItems,
   brand,
@@ -76,20 +73,7 @@ export function Sidebar({
         })}
       </nav>
 
-      {/* Footer promo or custom slot */}
-      {footer ?? (
-        <div className="p-4">
-          <div className="border-border bg-surface-hover rounded-2xl border p-4">
-            <p className="text-content text-xs font-bold">Buy Now, Pay Later</p>
-            <p className="text-muted mt-1 text-xs leading-relaxed">
-              Shop now and pay within 15–30 days.
-            </p>
-            <button className="bg-brand-600 hover:bg-brand-700 mt-2.5 w-full rounded-xl py-1.5 text-xs font-bold text-white transition">
-              Activate Credit
-            </button>
-          </div>
-        </div>
-      )}
+      {footer ? <div className="p-4">{footer}</div> : null}
     </aside>
   )
 }

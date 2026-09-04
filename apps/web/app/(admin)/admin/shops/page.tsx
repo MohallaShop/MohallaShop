@@ -41,8 +41,8 @@ export default async function AdminShopsPage({ searchParams }: { searchParams: P
           <ul className="border-border bg-surface shadow-card divide-border divide-y rounded-2xl border">
             {result.items.map((s) => (
               <li key={s.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-                <div>
-                  <p className="text-content flex items-center gap-2 font-semibold">
+                <div className="min-w-0 flex-1">
+                  <p className="text-content flex min-w-0 flex-wrap items-center gap-2 font-semibold">
                     {s.name}
                     <ShopStatusBadge status={s.status} />
                   </p>

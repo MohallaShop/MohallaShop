@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { PackageIcon } from '@/components/icons'
 import { Container } from '@/components/layout/Container'
 import { PageHeader, ErrorState } from '@/components/ui/StateFeedback'
 import { Badge } from '@/components/ui/Badge'
@@ -62,7 +63,7 @@ export default async function ProductDetailPage({
               className="h-full w-full rounded-2xl object-cover"
             />
           ) : (
-            '🛒'
+            <PackageIcon className="h-16 w-16" />
           )}
         </div>
         <div>

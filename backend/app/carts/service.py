@@ -25,14 +25,14 @@ class CartCrossShop(ConflictError):  # noqa: N818 - semantic; subclasses Conflic
 
 
 async def get_or_create_active_cart(session: AsyncSession, principal: Principal) -> Cart:
-    await ensure_user(session, principal)
+    user = await ensure_user(session, principal)
     cart = (
         await session.execute(
-            select(Cart).where(Cart.user_id == principal.user_id, Cart.status == CartStatus.ACTIVE)
+            select(Cart).where(Cart.user_id == user.id, Cart.status == CartStatus.ACTIVE)
         )
     ).scalar_one_or_none()
     if cart is None:
-        cart = Cart(user_id=principal.user_id, status=CartStatus.ACTIVE)
+        cart = Cart(user_id=user.id, status=CartStatus.ACTIVE)
         session.add(cart)
         await session.flush()
     return cart

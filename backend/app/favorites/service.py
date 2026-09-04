@@ -16,12 +16,12 @@ from app.users.service import ensure_user
 
 
 async def list_favorites(session: AsyncSession, principal: Principal) -> list[FavoriteShopOut]:
-    await ensure_user(session, principal)
+    user = await ensure_user(session, principal)
     rows = (
         await session.execute(
             select(FavoriteShop, Shop)
             .join(Shop, Shop.id == FavoriteShop.shop_id)
-            .where(FavoriteShop.user_id == principal.user_id)
+            .where(FavoriteShop.user_id == user.id)
             .order_by(Shop.name)
         )
     ).all()
@@ -40,25 +40,25 @@ async def list_favorites(session: AsyncSession, principal: Principal) -> list[Fa
 async def add_favorite(
     session: AsyncSession, principal: Principal, shop_id: UUID
 ) -> FavoriteShopOut:
-    await ensure_user(session, principal)
+    user = await ensure_user(session, principal)
     shop = await session.get(Shop, shop_id)
     if shop is None or shop.status != ShopStatus.ACTIVE:
         raise NotFoundError('Shop not found')
     existing = (
         await session.execute(
             select(FavoriteShop).where(
-                FavoriteShop.user_id == principal.user_id, FavoriteShop.shop_id == shop_id
+                FavoriteShop.user_id == user.id, FavoriteShop.shop_id == shop_id
             )
         )
     ).scalar_one_or_none()
     if existing is None:
-        session.add(FavoriteShop(user_id=principal.user_id, shop_id=shop_id))
+        session.add(FavoriteShop(user_id=user.id, shop_id=shop_id))
         await session.commit()
         await session.flush()
         fav = (
             await session.execute(
                 select(FavoriteShop).where(
-                    FavoriteShop.user_id == principal.user_id,
+                    FavoriteShop.user_id == user.id,
                     FavoriteShop.shop_id == shop_id,
                 )
             )
@@ -76,9 +76,9 @@ async def add_favorite(
 
 
 async def remove_favorite(session: AsyncSession, principal: Principal, favorite_id: UUID) -> None:
-    await ensure_user(session, principal)
+    user = await ensure_user(session, principal)
     fav = await session.get(FavoriteShop, favorite_id)
-    if fav is None or fav.user_id != principal.user_id:
+    if fav is None or fav.user_id != user.id:
         raise NotFoundError('Favorite not found')
     await session.delete(fav)
     await session.commit()

@@ -18,8 +18,8 @@ export function DeliveryCard({ delivery }: { delivery: RiderDelivery }) {
   return (
     <li className="border-border bg-surface shadow-card rounded-2xl border p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-content font-semibold">
+        <div className="min-w-0 flex-1">
+          <p className="text-content truncate font-semibold">
             {delivery.order_no}
             <span className="text-muted ml-2 text-xs font-normal">{delivery.shop_name}</span>
           </p>
@@ -37,14 +37,14 @@ export function DeliveryCard({ delivery }: { delivery: RiderDelivery }) {
             <dt className="text-muted text-xs font-semibold uppercase tracking-wide">
               Drop address
             </dt>
-            <dd className="text-content mt-0.5">
+            <dd className="text-content mt-0.5 break-words">
               {delivery.drop_line1}, {delivery.drop_city}
               {delivery.drop_pincode ? ` ${delivery.drop_pincode}` : ''}
             </dd>
           </div>
           <div>
             <dt className="text-muted text-xs font-semibold uppercase tracking-wide">Contact</dt>
-            <dd className="text-content mt-0.5">
+            <dd className="text-content mt-0.5 break-words">
               {delivery.contact_name ?? '—'}
               {delivery.contact_phone ? ` · ${delivery.contact_phone}` : ''}
             </dd>

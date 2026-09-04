@@ -291,27 +291,27 @@ export interface ShopkeeperProductCreate {
   description?: string
   price: string
   unit: string
-  image_url?: string
-  category_id?: string
+  image_url?: string | null
+  category_id?: string | null
   is_active?: boolean
   quantity_available?: number
-  low_stock_threshold?: number
+  low_stock_threshold?: number | null
 }
 
 export interface ShopkeeperProductUpdate {
   name?: string
-  description?: string
+  description?: string | null
   price?: string
   unit?: string
-  image_url?: string
-  category_id?: string
+  image_url?: string | null
+  category_id?: string | null
   is_active?: boolean
-  low_stock_threshold?: number
+  low_stock_threshold?: number | null
 }
 
 export interface ShopkeeperInventoryUpdate {
   quantity_available?: number
-  low_stock_threshold?: number
+  low_stock_threshold?: number | null
 }
 
 // ── Admin oversight (read-only) ───────────────────────────────

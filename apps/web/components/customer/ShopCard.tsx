@@ -1,86 +1,72 @@
 import Link from 'next/link'
-import { ClockIcon, StarIcon } from '@/components/icons'
+import { MapPinIcon, StoreIcon } from '@/components/icons'
+import { Badge } from '@/components/ui/Badge'
 import type { ShopSummary } from '@/lib/api/types'
+import { cn } from '@/lib/utils/cn'
 
 const BANNERS = [
-  'from-brand-100 to-brand-200 dark:from-brand-950/70 dark:to-indigo-950/60',
-  'from-emerald-100 to-teal-100 dark:from-emerald-950/70 dark:to-teal-950/60',
-  'from-amber-100 to-orange-100 dark:from-amber-950/70 dark:to-orange-950/60',
-  'from-rose-100 to-pink-100 dark:from-rose-950/70 dark:to-pink-950/60',
-  'from-sky-100 to-cyan-100 dark:from-sky-950/70 dark:to-cyan-950/60',
+  'from-brand-100 to-brand-200 dark:from-brand-950/70 dark:to-slate-900',
+  'from-emerald-100 to-teal-100 dark:from-emerald-950/70 dark:to-slate-900',
+  'from-amber-100 to-orange-100 dark:from-amber-950/70 dark:to-slate-900',
+  'from-rose-100 to-pink-100 dark:from-rose-950/70 dark:to-slate-900',
+  'from-sky-100 to-cyan-100 dark:from-sky-950/70 dark:to-slate-900',
 ]
-const EMOJIS = ['🛒', '🥬', '🏪', '🧺', '💊']
-const TAGS = ['Top Rated', 'Fast Delivery', 'Best Prices', 'New', 'Popular']
 
-/**
- * Compact shop discovery card — responsive, high-contrast in light & dark modes.
- */
-export function ShopCard({ shop }: { shop: ShopSummary }) {
+export function ShopCard({
+  shop,
+  variant = 'grid',
+}: {
+  shop: ShopSummary
+  variant?: 'grid' | 'rail'
+}) {
   const h = Math.abs(shop.id.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7))
-  const open = shop.status === 'active'
-  const tag = TAGS[h % TAGS.length]
-  const rating = (4.5 + (h % 5) * 0.1).toFixed(1)
+  const active = shop.status === 'active'
 
   return (
     <Link
       href={`/shops/${shop.id}`}
-      className="border-border bg-surface shadow-card hover:shadow-card-hover group w-full shrink-0 overflow-hidden rounded-2xl border transition-all duration-200 hover:-translate-y-0.5 sm:w-[15.5rem] lg:w-[16.5rem]"
+      className={cn(
+        'border-border bg-surface shadow-card hover:shadow-card-hover group flex min-w-0 flex-col overflow-hidden rounded-2xl border transition-all duration-200 hover:-translate-y-0.5',
+        variant === 'rail' ? 'w-[16rem] max-w-[86vw] shrink-0' : 'w-full',
+      )}
     >
-      {/* Banner */}
       <div
-        className={`bg-gradient-to-br ${BANNERS[h % BANNERS.length]} relative grid h-28 place-items-center text-4xl`}
+        className={`bg-gradient-to-br ${BANNERS[h % BANNERS.length]} relative grid h-28 place-items-center`}
       >
-        <span className="transition-transform duration-200 group-hover:scale-110">
-          {EMOJIS[h % EMOJIS.length]}
+        <span className="bg-surface/90 text-brand-700 dark:text-brand-300 grid h-14 w-14 place-items-center rounded-2xl shadow-sm ring-1 ring-white/40 transition-transform duration-200 group-hover:scale-105">
+          <StoreIcon className="h-7 w-7" />
         </span>
-        {/* Rating badge */}
-        <span className="border-border/50 bg-surface/90 text-content absolute right-2.5 top-2.5 flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-bold shadow-sm backdrop-blur-sm">
-          <StarIcon className="h-3 w-3 text-amber-400" />
-          {rating}
-        </span>
-        {/* Tag badge */}
-        <span className="bg-brand-600 absolute left-2.5 top-2.5 rounded-full px-2 py-0.5 text-[11px] font-bold text-white shadow-sm">
-          {tag}
+        <span className="absolute left-2.5 top-2.5">
+          <Badge tone={active ? 'success' : 'muted'}>{active ? 'Open' : shop.status}</Badge>
         </span>
       </div>
 
-      {/* Content */}
-      <div className="p-3.5">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <h3 className="text-content truncate text-sm font-bold sm:text-base">{shop.name}</h3>
-            {shop.description ? (
-              <p className="text-muted mt-0.5 line-clamp-1 text-xs">{shop.description}</p>
-            ) : null}
-          </div>
-          {open ? (
-            <span className="shrink-0 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-bold text-emerald-700 ring-1 ring-emerald-500/25 dark:text-emerald-300">
-              Open
-            </span>
-          ) : (
-            <span className="bg-muted/15 text-muted shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold capitalize">
-              {shop.status}
-            </span>
-          )}
-        </div>
+      <div className="flex flex-1 flex-col p-3.5">
+        <h3 className="text-content truncate text-sm font-bold sm:text-base">{shop.name}</h3>
+        {shop.description ? (
+          <p className="text-muted mt-0.5 line-clamp-2 min-h-8 text-xs leading-snug">
+            {shop.description}
+          </p>
+        ) : (
+          <p className="text-muted mt-0.5 min-h-8 text-xs leading-snug">Local shop</p>
+        )}
 
-        <div className="text-muted mt-2.5 flex items-center gap-2 text-xs font-medium">
-          <span className="flex items-center gap-1">
-            <ClockIcon className="text-brand-600 dark:text-brand-400 h-3.5 w-3.5" />
-            {15 + (h % 20)}–{25 + (h % 15)} min
-          </span>
+        <div className="text-muted mt-3 space-y-1.5 text-xs font-medium">
           {shop.city ? (
-            <>
-              <span className="bg-border h-1 w-1 rounded-full" />
-              <span>{shop.city}</span>
-            </>
+            <div className="flex min-w-0 items-center gap-1.5">
+              <MapPinIcon className="text-brand-600 dark:text-brand-400 h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{shop.city}</span>
+            </div>
           ) : null}
+          {shop.phone ? <div className="truncate">Phone: {shop.phone}</div> : null}
         </div>
 
-        <div className="border-border/70 mt-3 flex items-center justify-between border-t pt-2.5">
-          <span className="text-muted text-xs font-medium">Min ₹{99 + (h % 10) * 10}</span>
-          <span className="text-brand-700 dark:text-brand-400 group-hover:text-brand-800 text-xs font-bold transition">
-            View shop →
+        <div className="border-border/70 mt-auto flex items-center justify-between border-t pt-3">
+          <span className="text-muted min-w-0 truncate text-xs font-medium">
+            Products and prices from shop
+          </span>
+          <span className="text-brand-700 dark:text-brand-400 group-hover:text-brand-800 shrink-0 text-xs font-bold transition">
+            View -&gt;
           </span>
         </div>
       </div>

@@ -4,22 +4,21 @@
 
 /*
  * MohallaShop design tokens (Tailwind v4 @theme).
- * Brand = violet/purple (modern, friendly). Accent = saffron/amber (energy).
- * Unified design system with seamless Light and Dark mode transitions.
+ * Brand = fresh market green. Accent = saffron/amber for emphasis.
  */
 @theme {
-  /* Brand (violet) */
-  --color-brand-50: #f5f3ff;
-  --color-brand-100: #ede9fe;
-  --color-brand-200: #ddd6fe;
-  --color-brand-300: #c4b5fd;
-  --color-brand-400: #a78bfa;
-  --color-brand-500: #8b5cf6;
-  --color-brand-600: #7c3aed;
-  --color-brand-700: #6d28d9;
-  --color-brand-800: #5b21b6;
-  --color-brand-900: #4c1d95;
-  --color-brand-950: #2e1065;
+  /* Brand (green) */
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
+  --color-brand-950: #022c22;
 
   /* Accent (saffron/amber) */
   --color-accent-100: #fef3c7;
@@ -31,12 +30,12 @@
   --color-accent-700: #b45309;
 
   /* Semantic surfaces - Light mode defaults */
-  --color-background: #f8f7fc;
+  --color-background: #f7faf8;
   --color-surface: #ffffff;
   --color-surface-elevated: #ffffff;
-  --color-surface-hover: #f3f2fa;
+  --color-surface-hover: #eef6f1;
   --color-muted: #64748b;
-  --color-border: #e6e6f0;
+  --color-border: #dfe8e3;
   --color-content: #0f172a;
   --color-content-secondary: #334155;
   --color-success: #16a34a;
@@ -61,7 +60,7 @@
   --shadow-card: 0 1px 3px rgba(16, 24, 40, 0.05), 0 1px 2px rgba(16, 24, 40, 0.03);
   --shadow-card-hover: 0 8px 20px rgba(16, 24, 40, 0.08), 0 3px 6px rgba(16, 24, 40, 0.04);
   --shadow-elevated: 0 12px 28px rgba(16, 24, 40, 0.1), 0 4px 10px rgba(16, 24, 40, 0.04);
-  --shadow-glow: 0 0 24px rgba(124, 58, 237, 0.2);
+  --shadow-glow: 0 0 24px rgba(5, 150, 105, 0.16);
 
   /* Breakpoint */
   --breakpoint-3xl: 1920px;
@@ -69,12 +68,12 @@
 
 /* Dark mode overrides */
 .dark {
-  --color-background: #0b0b14;
-  --color-surface: #141422;
-  --color-surface-elevated: #1a1a2e;
-  --color-surface-hover: #202036;
+  --color-background: #08110e;
+  --color-surface: #101916;
+  --color-surface-elevated: #16211d;
+  --color-surface-hover: #1b2924;
   --color-muted: #94a3b8;
-  --color-border: #232338;
+  --color-border: #24342e;
   --color-content: #f8fafc;
   --color-content-secondary: #cbd5e1;
   --color-success: #22c55e;
@@ -85,7 +84,7 @@
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-card-hover: 0 8px 20px rgba(0, 0, 0, 0.5), 0 3px 6px rgba(0, 0, 0, 0.3);
   --shadow-elevated: 0 12px 28px rgba(0, 0, 0, 0.6), 0 4px 10px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 24px rgba(139, 92, 246, 0.25);
+  --shadow-glow: 0 0 24px rgba(52, 211, 153, 0.2);
 }
 
 @layer base {

@@ -88,12 +88,18 @@ async def _sync_contact(session: AsyncSession, user: User, principal: Principal)
     *different* user row — otherwise we would re-introduce the very unique
     constraint violation we are trying to avoid.
     """
-    if principal.email and user.email != principal.email:
-        if not await _contact_owned_by_other(session, user.id, 'email', principal.email):
-            user.email = principal.email
-    if principal.phone and user.phone != principal.phone:
-        if not await _contact_owned_by_other(session, user.id, 'phone', principal.phone):
-            user.phone = principal.phone
+    if (
+        principal.email
+        and user.email != principal.email
+        and not await _contact_owned_by_other(session, user.id, 'email', principal.email)
+    ):
+        user.email = principal.email
+    if (
+        principal.phone
+        and user.phone != principal.phone
+        and not await _contact_owned_by_other(session, user.id, 'phone', principal.phone)
+    ):
+        user.phone = principal.phone
     return user
 
 

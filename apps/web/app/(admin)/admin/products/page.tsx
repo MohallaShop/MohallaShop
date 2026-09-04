@@ -41,8 +41,8 @@ export default async function AdminProductsPage({ searchParams }: { searchParams
           <ul className="border-border bg-surface shadow-card divide-border divide-y rounded-2xl border">
             {result.items.map((p) => (
               <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-                <div>
-                  <p className="text-content font-semibold">{p.name}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-content truncate font-semibold">{p.name}</p>
                   <p className="text-muted text-xs">
                     {formatMoney(p.price)} · {p.unit} · stock {p.quantity_available}
                   </p>

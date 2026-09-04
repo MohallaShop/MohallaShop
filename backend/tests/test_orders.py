@@ -6,10 +6,12 @@ from decimal import Decimal
 from uuid import uuid4
 
 import pytest
-from sqlalchemy import update
+from sqlalchemy import select, update
 
+from app.orders.models import Order
 from app.shops.models import Product
-from tests.conftest import SHOPKEEPER_ID
+from app.users.models import User
+from tests.conftest import SHOPKEEPER_ID, make_token
 from tests.helpers import get_inventory_qty, place_order, seed_shop_with_product
 
 pytestmark = pytest.mark.asyncio
@@ -35,6 +37,41 @@ async def test_create_order_success(client, db, customer_headers) -> None:
     cart = await client.get('/api/v1/cart', headers=customer_headers)
     assert cart.json()['items'] == []
     assert cart.json()['shop_id'] is None
+
+
+async def test_create_order_uses_existing_contact_user(client, db) -> None:
+    _, product_id = await seed_shop_with_product(db, SHOPKEEPER_ID, qty=10)
+    existing_user_id = uuid4()
+    token_user_id = uuid4()
+    email = 'existing-order-customer@example.com'
+    db.add(User(id=existing_user_id, email=email, phone='+919700000001'))
+    await db.commit()
+
+    headers = {
+        'Authorization': f'Bearer {make_token(token_user_id, ["customer"], email=email)}'
+    }
+    addr = await client.post(
+        '/api/v1/me/addresses',
+        headers=headers,
+        json={'line1': 'x', 'city': 'Pune', 'state': 'MH', 'pincode': '411001'},
+    )
+    assert addr.status_code == 201, addr.text
+    added = await client.post(
+        '/api/v1/cart/items',
+        headers=headers,
+        json={'product_id': str(product_id), 'quantity': 1},
+    )
+    assert added.status_code == 201, added.text
+
+    order = await client.post(
+        '/api/v1/orders', headers=headers, json={'address_id': addr.json()['id']}
+    )
+
+    assert order.status_code == 201, order.text
+    order_row = (
+        await db.execute(select(Order).where(Order.id == order.json()['id']))
+    ).scalar_one()
+    assert order_row.customer_user_id == existing_user_id
 
 
 async def test_create_order_charges_shop_delivery_fee(client, db, customer_headers) -> None:
@@ -127,8 +164,6 @@ async def test_customer_cancel_restocks(client, db, customer_headers) -> None:
 
 
 async def test_only_own_order_visible(client, db, customer_headers) -> None:
-    from tests.conftest import make_token
-
     _, product_id = await seed_shop_with_product(db, SHOPKEEPER_ID)
     order = await place_order(client, customer_headers, product_id, qty=1)
     other = {'Authorization': f'Bearer {make_token(uuid4(), ["customer"])}'}

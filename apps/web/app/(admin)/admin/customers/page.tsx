@@ -43,8 +43,10 @@ export default async function AdminCustomersPage({ searchParams }: { searchParam
           <ul className="border-border bg-surface shadow-card divide-border space-y-0 divide-y rounded-2xl border">
             {result.items.map((u) => (
               <li key={u.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-                <div>
-                  <p className="text-content font-semibold">{u.phone ?? u.email ?? u.id}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="text-content truncate font-semibold">
+                    {u.phone ?? u.email ?? u.id}
+                  </p>
                   <p className="text-muted text-xs">
                     {u.email ?? '—'} · joined {formatDateTime(u.created_at)}
                   </p>

@@ -29,7 +29,10 @@ export function Pagination({
   const next = Math.min(total_pages, page + 1)
 
   return (
-    <nav aria-label="Pagination" className="text-muted mt-8 flex items-center justify-center gap-2">
+    <nav
+      aria-label="Pagination"
+      className="text-muted mt-8 flex flex-wrap items-center justify-center gap-2"
+    >
       {page > 1 ? (
         <Link
           href={buildHref(base, params, prev)}

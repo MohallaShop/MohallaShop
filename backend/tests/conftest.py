@@ -44,7 +44,6 @@ RIDER2_ID = UUID('00000000-0000-0000-0000-000000000006')
 DEV_SECRET = 'mohallashop-development-test-jwt-secret-do-not-use-in-production'
 DBNAME = 'mohalla_pytest'
 BACKEND_DIR = Path(__file__).resolve().parent.parent
-PGDATA = os.path.join(tempfile.gettempdir(), 'mohalla_pg')
 
 _TABLES = [
     'deliveries',
@@ -103,6 +102,7 @@ def make_token(
     roles: list[str],
     *,
     secret: str = DEV_SECRET,
+    email: str | None = None,
     phone: str | None = None,
 ) -> str:
     now = datetime.now(UTC)
@@ -113,7 +113,7 @@ def make_token(
     payload = {
         'sub': str(user_id),
         'phone': phone,
-        'email': f'{user_id.hex}@example.com',
+        'email': email or f'{user_id.hex}@example.com',
         'exp': now + timedelta(hours=1),
         'iat': now,
         'iss': 'supabase',
@@ -141,9 +141,8 @@ async def _recreate_db(admin_uri: str) -> str:
 
 @pytest.fixture(scope='session')
 def db_url() -> str:
-    srv = pgserver.get_server(PGDATA)
-    srv.ensure_pgdata_inited()
-    srv.ensure_postgres_running()
+    pgdata = tempfile.mkdtemp(prefix='mohalla_pg_')
+    srv = pgserver.get_server(pgdata, cleanup_mode='delete')
     admin_uri = srv.get_uri('postgres')
     url = asyncio.run(_recreate_db(admin_uri))
 

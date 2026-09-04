@@ -76,10 +76,10 @@ async def get_rider(session: AsyncSession, user_id: UUID) -> Rider:
 
 
 async def ensure_rider(session: AsyncSession, principal: Principal) -> Rider:
-    await ensure_user(session, principal)
-    rider = await session.get(Rider, principal.user_id)
+    user = await ensure_user(session, principal)
+    rider = await session.get(Rider, user.id)
     if rider is None:
-        rider = Rider(user_id=principal.user_id)
+        rider = Rider(user_id=user.id)
         session.add(rider)
         await session.flush()
     return rider
@@ -94,15 +94,16 @@ async def set_online(
     # Catch-up: assign orders that became ready while nobody was online.
     assigned = await assign_waiting_orders(session, fee)
     await session.commit()
-    logger.info('rider_online', user_id=str(principal.user_id), assigned=assigned)
-    return await rider_state(session, principal.user_id)
+    logger.info('rider_online', user_id=str(rider.user_id), assigned=assigned)
+    return await rider_state(session, rider.user_id)
 
 
 async def set_offline(session: AsyncSession, principal: Principal) -> RiderStateOut:
-    rider = await get_rider(session, principal.user_id)
+    user = await ensure_user(session, principal)
+    rider = await get_rider(session, user.id)
     rider.is_online = False
     await session.commit()
-    return await rider_state(session, principal.user_id)
+    return await rider_state(session, user.id)
 
 
 async def rider_state(session: AsyncSession, user_id: UUID) -> RiderStateOut:
@@ -222,13 +223,14 @@ async def assign_waiting_orders(session: AsyncSession, fee: Decimal) -> int:
 # ── Dashboard / list ───────────────────────────────────────────
 async def dashboard(session: AsyncSession, principal: Principal) -> RiderDashboardOut:
     rider = await ensure_rider(session, principal)
+    rider_id = rider.user_id
     counts = await _active_counts(session)
     today_start = datetime.combine(datetime.now(UTC).date(), time.min, tzinfo=UTC)
     completed_today, earned_today = (
         await session.execute(
             select(func.count(Delivery.id), func.coalesce(func.sum(Delivery.rider_fee), 0))
             .where(
-                Delivery.rider_user_id == principal.user_id,
+                Delivery.rider_user_id == rider_id,
                 Delivery.status == DeliveryStatus.DELIVERED,
                 Delivery.completed_at >= today_start,
             )
@@ -236,7 +238,7 @@ async def dashboard(session: AsyncSession, principal: Principal) -> RiderDashboa
     ).one()
     return RiderDashboardOut(
         is_online=rider.is_online,
-        active_count=counts.get(principal.user_id, 0),
+        active_count=counts.get(rider_id, 0),
         completed_today=int(completed_today),
         earned_today=Decimal(earned_today),
     )
@@ -251,7 +253,9 @@ async def list_deliveries(
     page_size: int,
 ) -> tuple[list[RiderDeliveryOut], int]:
     """The rider's deliveries (newest first). `status=None` returns all."""
-    conds = [Delivery.rider_user_id == principal.user_id]
+    user = await ensure_user(session, principal)
+    uid = user.id
+    conds = [Delivery.rider_user_id == uid]
     if status is not None:
         conds.append(Delivery.status == status)
     base = (
@@ -299,12 +303,14 @@ async def _transition(
     *,
     reason: str | None = None,
 ) -> RiderDeliveryOut:
+    user = await ensure_user(session, principal)
+    uid = user.id
     delivery = (
         await session.execute(
             select(Delivery).where(Delivery.id == delivery_id).with_for_update()
         )
     ).scalar_one_or_none()
-    if delivery is None or delivery.rider_user_id != principal.user_id:
+    if delivery is None or delivery.rider_user_id != uid:
         raise NotFoundError('Delivery not found')
     if target not in _DELIVERY_ALLOWED.get(delivery.status, set()):
         raise StateTransitionError(
@@ -322,25 +328,26 @@ async def _transition(
         if order.status != OrderStatus.READY_FOR_PICKUP:
             raise StateTransitionError('Order is not awaiting pickup')
         delivery.picked_up_at = now
-        _record_order_transition(session, order, OrderStatus.OUT_FOR_DELIVERY, principal.user_id,
-                                 'picked up by rider')
+        _record_order_transition(
+            session, order, OrderStatus.OUT_FOR_DELIVERY, uid, 'picked up by rider'
+        )
     elif target == DeliveryStatus.DELIVERED:
         if order.status != OrderStatus.OUT_FOR_DELIVERY:
             raise StateTransitionError('Order is not out for delivery')
         delivery.completed_at = now
-        _record_order_transition(session, order, OrderStatus.DELIVERED, principal.user_id,
-                                 'delivered by rider')
+        _record_order_transition(session, order, OrderStatus.DELIVERED, uid, 'delivered by rider')
     else:  # FAILED
         delivery.notes = reason
         delivery.completed_at = now
         # A failed delivery bounces the order back to ready_for_pickup (when it
         # was out with this rider) so it can be reassigned.
         if order.status == OrderStatus.OUT_FOR_DELIVERY:
-            _record_order_transition(session, order, OrderStatus.READY_FOR_PICKUP,
-                                     principal.user_id, reason or 'delivery failed')
+            _record_order_transition(
+                session, order, OrderStatus.READY_FOR_PICKUP, uid, reason or 'delivery failed'
+            )
         await session.flush()
         # Reassign to another online rider, if one is free.
-        rider_id = await _pick_rider(session, exclude=principal.user_id)
+        rider_id = await _pick_rider(session, exclude=uid)
         if rider_id is not None:
             session.add(
                 Delivery(
@@ -383,6 +390,8 @@ async def fail(
 async def earnings(
     session: AsyncSession, principal: Principal, *, days: int = 7
 ) -> RiderEarningsOut:
+    user = await ensure_user(session, principal)
+    uid = user.id
     today = datetime.now(UTC).date()
     since = datetime.combine(today - timedelta(days=days - 1), time.min, tzinfo=UTC)
 
@@ -390,7 +399,7 @@ async def earnings(
         await session.execute(
             select(func.count(Delivery.id), func.coalesce(func.sum(Delivery.rider_fee), 0))
             .where(
-                Delivery.rider_user_id == principal.user_id,
+                Delivery.rider_user_id == uid,
                 Delivery.status == DeliveryStatus.DELIVERED,
             )
         )
@@ -401,7 +410,7 @@ async def earnings(
         await session.execute(
             select(day_col, func.count(Delivery.id), func.coalesce(func.sum(Delivery.rider_fee), 0))
             .where(
-                Delivery.rider_user_id == principal.user_id,
+                Delivery.rider_user_id == uid,
                 Delivery.status == DeliveryStatus.DELIVERED,
                 Delivery.completed_at >= since,
             )

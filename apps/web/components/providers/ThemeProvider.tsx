@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 
-type Theme = 'light' | 'dark' | 'system'
+export type Theme = 'light' | 'dark' | 'system'
 
 interface ThemeContextType {
   theme: Theme
@@ -52,10 +52,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     mediaQuery.addEventListener('change', handleChange)
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [theme, mounted])
-
-  if (!mounted) {
-    return <>{children}</>
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>

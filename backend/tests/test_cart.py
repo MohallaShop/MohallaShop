@@ -5,7 +5,10 @@ from __future__ import annotations
 from uuid import uuid4
 
 import pytest
+from sqlalchemy import select
 
+from app.carts.models import Cart
+from app.users.models import User
 from tests.conftest import OTHER_SHOPKEEPER_ID, SHOPKEEPER_ID, make_token
 from tests.helpers import seed_shop_with_product
 
@@ -24,6 +27,28 @@ async def test_add_item_binds_shop(client, db, customer_headers) -> None:
     assert body['shop_id'] == str(shop_id)
     assert body['items'][0]['quantity'] == 2
     assert body['items'][0]['unit_price'] == '50.00'
+
+
+async def test_add_item_uses_existing_contact_user(client, db) -> None:
+    shop_id, product_id = await seed_shop_with_product(db, SHOPKEEPER_ID)
+    existing_user_id = uuid4()
+    token_user_id = uuid4()
+    email = 'existing-cart-customer@example.com'
+    db.add(User(id=existing_user_id, email=email, phone='+919700000000'))
+    await db.commit()
+
+    headers = {
+        'Authorization': f'Bearer {make_token(token_user_id, ["customer"], email=email)}'
+    }
+    r = await client.post(
+        '/api/v1/cart/items',
+        headers=headers,
+        json={'product_id': str(product_id), 'quantity': 1},
+    )
+
+    assert r.status_code == 201, r.text
+    cart = (await db.execute(select(Cart).where(Cart.user_id == existing_user_id))).scalar_one()
+    assert cart.shop_id == shop_id
 
 
 async def test_cross_shop_rejected(client, db, customer_headers) -> None:

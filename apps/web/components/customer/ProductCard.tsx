@@ -1,32 +1,35 @@
+import { PackageIcon } from '@/components/icons'
 import { Badge } from '@/components/ui/Badge'
 import { AddProductButton } from './AddProductButton'
-import { formatMoney } from '@/lib/utils/format'
 import type { ProductOut } from '@/lib/api/types'
+import { formatMoney } from '@/lib/utils/format'
 
 export function ProductCard({ product }: { product: ProductOut }) {
   const available = product.in_stock
   return (
-    <div className="border-border bg-surface shadow-card flex flex-col rounded-2xl border p-4">
-      <div className="bg-surface-hover text-muted mb-3 grid h-20 place-items-center rounded-xl text-xl">
+    <div className="border-border bg-surface shadow-card flex min-w-0 flex-col rounded-2xl border p-4">
+      <div className="bg-surface-hover text-muted mb-3 grid h-20 place-items-center overflow-hidden rounded-xl text-xl">
         {product.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={product.image_url}
             alt=""
-            className="h-full w-full rounded-xl object-cover"
+            className="h-full w-full object-cover"
             loading="lazy"
           />
         ) : (
-          '🛒'
+          <PackageIcon className="h-7 w-7" />
         )}
       </div>
-      <h3 className="text-content font-semibold leading-snug">{product.name}</h3>
+      <h3 className="text-content line-clamp-2 min-h-11 font-semibold leading-snug">
+        {product.name}
+      </h3>
       {product.description ? (
         <p className="text-muted mt-1 line-clamp-2 text-sm">{product.description}</p>
       ) : null}
-      <div className="text-content mt-2 flex items-baseline gap-1">
-        <span className="text-lg font-bold">{formatMoney(product.price)}</span>
-        <span className="text-muted text-xs">/ {product.unit}</span>
+      <div className="text-content mt-2 flex min-w-0 items-baseline gap-1">
+        <span className="truncate text-lg font-bold">{formatMoney(product.price)}</span>
+        <span className="text-muted shrink-0 text-xs">/ {product.unit}</span>
       </div>
       <div className="mt-1">
         {available ? (

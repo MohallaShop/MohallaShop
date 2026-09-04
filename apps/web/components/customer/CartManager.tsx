@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { PackageIcon } from '@/components/icons'
 import { Button } from '@/components/ui/Button'
 import { QuantityStepper } from '@/components/ui/QuantityStepper'
 import { EmptyState } from '@/components/ui/StateFeedback'
@@ -123,7 +124,7 @@ export function CartManager({ initial }: { initial: CartOut }) {
                   loading="lazy"
                 />
               ) : (
-                '🛒'
+                <PackageIcon className="h-7 w-7" />
               )}
             </div>
             <div className="flex min-w-0 flex-1 flex-col">
@@ -163,7 +164,7 @@ export function CartManager({ initial }: { initial: CartOut }) {
           <span className="text-content text-lg font-bold">{formatMoney(subtotal)}</span>
         </div>
         <p className="text-muted mt-1 text-xs">
-          Final price and any delivery charge are confirmed by the shop at checkout.
+          Product prices and delivery charge are calculated when you place the order.
         </p>
         {firstShop ? (
           <p className="text-muted mt-1 text-xs">

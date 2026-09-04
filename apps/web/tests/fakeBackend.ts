@@ -235,8 +235,8 @@ const json = (data: unknown, status = 200) =>
 
 /** Fetch handler bound to the fake backend (install via vi.stubGlobal). */
 export async function fakeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-  const url = new URL(String(input))
-  const path = url.pathname.replace(/^\/api\/v1/, '')
+  const url = new URL(String(input), 'http://localhost')
+  const path = url.pathname.replace(/^\/api\/(?:backend|v1)/, '')
   const method = (init?.method ?? 'GET').toUpperCase()
   const headers = init?.headers as Record<string, string> | undefined
   const token = headers?.Authorization?.replace('Bearer ', '') ?? null

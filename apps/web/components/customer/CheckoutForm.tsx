@@ -144,11 +144,9 @@ export function CheckoutForm({ addresses, cart }: { addresses: AddressOut[]; car
         <h2 className="text-content text-lg font-semibold">Payment</h2>
         <div className="border-border bg-brand-500/10 mt-3 flex items-center justify-between rounded-xl border p-3">
           <span className="text-content text-sm font-semibold">Cash on Delivery</span>
-          <span className="text-muted text-xs">Online payment coming soon</span>
+          <span className="text-muted text-xs">MVP payment method</span>
         </div>
-        <p className="text-muted mt-2 text-xs">
-          Pay in cash when your order arrives. The final amount is confirmed by the shop.
-        </p>
+        <p className="text-muted mt-2 text-xs">Pay in cash when your order arrives.</p>
       </section>
 
       <section className="border-border bg-surface shadow-card rounded-2xl border p-5">
@@ -168,7 +166,7 @@ export function CheckoutForm({ addresses, cart }: { addresses: AddressOut[]; car
           <span className="text-content text-lg font-bold">{formatMoney(subtotal)}</span>
         </div>
         <p className="text-muted mt-1 text-xs">
-          Final pricing and delivery charges are set by the shop and shown on your order.
+          Delivery charge, if configured for the shop, is added to the placed order.
         </p>
       </section>
 

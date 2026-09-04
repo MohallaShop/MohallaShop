@@ -12,7 +12,6 @@ import {
   BikeIcon,
   WalletIcon,
   HeartIcon,
-  HelpCircleIcon,
   GridIcon,
   CartIcon,
 } from '@/components/icons'
@@ -34,11 +33,11 @@ export interface NavItem {
  */
 export const CUSTOMER_NAV: NavItem[] = [
   { label: 'Home', href: '/home', icon: HomeIcon },
-  { label: 'Browse Shops', href: '/shops', icon: StoreIcon },
+  { label: 'Shops', href: '/shops', icon: StoreIcon },
   { label: 'Categories', href: '/categories', icon: GridIcon },
-  { label: 'My Orders', href: '/orders', icon: ReceiptIcon },
+  { label: 'Cart', href: '/cart', icon: CartIcon },
+  { label: 'Orders', href: '/orders', icon: ReceiptIcon },
   { label: 'Favorites', href: '/favorites', icon: HeartIcon },
-  { label: 'Support', href: '/support', icon: HelpCircleIcon },
 ]
 
 /** Compact subset for the mobile bottom bar (sidebar shows the full list). */

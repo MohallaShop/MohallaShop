@@ -26,7 +26,8 @@ export class ApiError extends Error {
   }
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1'
+const BACKEND_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000/api/v1'
+const BROWSER_BASE_URL = process.env.NEXT_PUBLIC_BROWSER_API_URL ?? '/api/backend'
 
 type QueryValue = string | number | boolean | undefined | null
 export type QueryParams = Record<string, QueryValue | QueryValue[]>
@@ -43,7 +44,8 @@ export interface ApiRequestOptions extends Omit<RequestInit, 'body'> {
 }
 
 function buildUrl(path: string, query?: QueryParams): string {
-  const base = `${BASE_URL}${path.startsWith('/') ? path : `/${path}`}`
+  const apiBase = typeof window === 'undefined' ? BACKEND_BASE_URL : BROWSER_BASE_URL
+  const base = `${apiBase}${path.startsWith('/') ? path : `/${path}`}`
   if (!query) return base
   const search = new URLSearchParams()
   for (const [key, value] of Object.entries(query)) {

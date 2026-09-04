@@ -132,7 +132,8 @@ async def get_product(session: AsyncSession, product_id: UUID) -> Product:
 
 
 async def get_shopkeeper_shop(session: AsyncSession, principal: Principal) -> Shop:
-    stmt = select(Shop).where(Shop.owner_user_id == principal.user_id)
+    user = await ensure_user(session, principal)
+    stmt = select(Shop).where(Shop.owner_user_id == user.id)
     shop = (await session.execute(stmt)).scalar_one_or_none()
     if shop is None:
         raise NotFoundError('You do not own a shop yet')
@@ -143,9 +144,9 @@ async def create_shop(
     session: AsyncSession, principal: Principal, data: ShopCreate
 ) -> Shop:
     """Register the shopkeeper's (single) shop. It starts pending admin approval."""
-    await ensure_user(session, principal)
+    user = await ensure_user(session, principal)
     existing = (
-        await session.execute(select(Shop).where(Shop.owner_user_id == principal.user_id))
+        await session.execute(select(Shop).where(Shop.owner_user_id == user.id))
     ).scalar_one_or_none()
     if existing is not None:
         raise ConflictError(
@@ -154,7 +155,7 @@ async def create_shop(
             details={'shop_id': str(existing.id)},
         )
     shop = Shop(
-        owner_user_id=principal.user_id,
+        owner_user_id=user.id,
         name=data.name,
         description=data.description,
         phone=data.phone,

@@ -33,11 +33,10 @@ def get_engine(settings: Settings | None = None) -> AsyncEngine:
         s = settings or get_settings()
         _engine = create_async_engine(
             asyncpg_dsn(s.database_url),
-            # statement_cache_size=0 disables asyncpg's prepared-statement cache,
-            # which is required when connecting through Supabase's transaction
-            # pooler (pgbouncer in transaction mode cannot carry prepared
-            # statements across pooled connections).
-            connect_args={'statement_cache_size': 0},
+            # Supabase's transaction pooler uses PgBouncer. Disable both
+            # SQLAlchemy's asyncpg prepared-statement cache and asyncpg's own
+            # statement cache so requests use unnamed prepared statements.
+            connect_args={'prepared_statement_cache_size': 0, 'statement_cache_size': 0},
             pool_size=s.db_pool_size,
             max_overflow=s.db_max_overflow,
             echo=s.db_echo,
