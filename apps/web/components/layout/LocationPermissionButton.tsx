@@ -10,7 +10,7 @@ export function LocationPermissionButton({
   variant = 'rail',
   active = false,
 }: {
-  variant?: 'rail' | 'bottom'
+  variant?: 'rail' | 'bottom' | 'header'
   active?: boolean
 }) {
   const [status, setStatus] = useState<Status>('idle')
@@ -53,6 +53,25 @@ export function LocationPermissionButton({
       >
         <MapPinIcon className="h-5 w-5 shrink-0 min-[360px]:h-5.5 min-[360px]:w-5.5" />
         <span className="max-w-full truncate">{label}</span>
+      </button>
+    )
+  }
+
+  if (variant === 'header') {
+    return (
+      <button
+        type="button"
+        onClick={requestLocation}
+        aria-label="Use current location"
+        className="border-border bg-background text-content hover:bg-surface-hover flex h-10 min-w-0 items-center gap-2 rounded-lg border px-3 text-left text-sm transition"
+      >
+        <span className="bg-brand-500/10 text-brand-700 dark:text-brand-300 grid h-7 w-7 shrink-0 place-items-center rounded-md">
+          <MapPinIcon className="h-4 w-4" />
+        </span>
+        <span className="min-w-0 flex-1 leading-tight">
+          <span className="block truncate text-xs font-bold">{label}</span>
+          <span className="text-muted block truncate text-[11px] font-medium">{railStatus}</span>
+        </span>
       </button>
     )
   }

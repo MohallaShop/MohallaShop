@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { CartIcon, SearchIcon, StoreIcon, UserIcon } from '@/components/icons'
 import { cn } from '@/lib/utils/cn'
 import { siteConfig } from '@/lib/config/site'
+import { LocationPermissionButton } from './LocationPermissionButton'
 import type { NavItem } from '@/lib/config/nav'
 
 type ShellRole = 'customer' | 'shopkeeper' | 'rider' | 'admin'
@@ -30,6 +31,8 @@ export function Header({
   const [q, setQ] = useState('')
   const firstName = userName?.trim().split(/\s+/)[0] ?? null
   const isCustomer = role === 'customer'
+  const isSearchPage = pathname === '/search'
+  const showCustomerHeaderSearch = isCustomer && !isSearchPage
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -83,7 +86,7 @@ export function Header({
           </nav>
         ) : null}
 
-        {isCustomer ? (
+        {showCustomerHeaderSearch ? (
           <SearchForm
             value={q}
             onChange={setQ}
@@ -124,8 +127,11 @@ export function Header({
       </div>
 
       {isCustomer ? (
-        <div className="border-border border-t px-4 py-2 md:hidden">
-          <SearchForm value={q} onChange={setQ} onSubmit={submit} />
+        <div className="border-border space-y-2 border-t px-4 py-2 md:hidden">
+          <LocationPermissionButton variant="header" />
+          {showCustomerHeaderSearch ? (
+            <SearchForm value={q} onChange={setQ} onSubmit={submit} />
+          ) : null}
         </div>
       ) : null}
     </header>

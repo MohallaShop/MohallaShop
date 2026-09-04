@@ -11,6 +11,7 @@ import {
   BikeIcon,
   WalletIcon,
   HeartIcon,
+  HomeIcon,
   GridIcon,
   CartIcon,
   MapPinIcon,
@@ -43,7 +44,7 @@ export const CUSTOMER_NAV: NavItem[] = [
 
 /** Compact subset for the mobile bottom bar (sidebar shows the full list). */
 export const CUSTOMER_MOBILE_NAV: NavItem[] = [
-  { label: 'Location', action: 'location', icon: MapPinIcon },
+  { label: 'Home', href: '/home', icon: HomeIcon },
   { label: 'Shops', href: '/shops', icon: StoreIcon },
   { label: 'Search', href: '/search', icon: SearchIcon },
   { label: 'Cart', href: '/cart', icon: CartIcon },
