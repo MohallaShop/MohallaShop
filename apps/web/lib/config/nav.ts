@@ -47,7 +47,6 @@ export const CUSTOMER_MOBILE_NAV: NavItem[] = [
   { label: 'Search', href: '/search', icon: SearchIcon },
   { label: 'Cart', href: '/cart', icon: CartIcon },
   { label: 'Orders', href: '/orders', icon: ReceiptIcon },
-  { label: 'Profile', href: '/profile', icon: UserIcon },
 ]
 
 export const SHOPKEEPER_NAV: NavItem[] = [
@@ -56,12 +55,16 @@ export const SHOPKEEPER_NAV: NavItem[] = [
   { label: 'Orders', href: '/shop/orders', icon: ReceiptIcon },
 ]
 
+export const SHOPKEEPER_MOBILE_NAV: NavItem[] = SHOPKEEPER_NAV
+
 export const RIDER_NAV: NavItem[] = [
   { label: 'Dashboard', href: '/rider/dashboard', icon: DashboardIcon },
   { label: 'Deliveries', href: '/rider/deliveries', icon: BikeIcon },
   { label: 'Earnings', href: '/rider/earnings', icon: WalletIcon },
   { label: 'Profile', href: '/rider/profile', icon: UserIcon },
 ]
+
+export const RIDER_MOBILE_NAV: NavItem[] = RIDER_NAV
 
 export const ADMIN_NAV: NavItem[] = [
   { label: 'Dashboard', href: '/admin/dashboard', icon: DashboardIcon },
@@ -72,4 +75,12 @@ export const ADMIN_NAV: NavItem[] = [
   { label: 'Orders', href: '/admin/orders', icon: ReceiptIcon },
   { label: 'Analytics', href: '/admin/analytics', icon: BarChartIcon },
   { label: 'Settings', href: '/admin/settings', icon: SettingsIcon },
+]
+
+export const ADMIN_MOBILE_NAV: NavItem[] = [
+  { label: 'Home', href: '/admin/dashboard', icon: DashboardIcon },
+  { label: 'Shops', href: '/admin/shops', icon: StoreIcon },
+  { label: 'Products', href: '/admin/products', icon: GridIcon },
+  { label: 'Orders', href: '/admin/orders', icon: ReceiptIcon },
+  { label: 'Users', href: '/admin/customers', icon: UsersIcon },
 ]

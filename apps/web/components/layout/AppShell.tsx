@@ -3,10 +3,13 @@
 import { Header } from './Header'
 import { BottomNav } from './BottomNav'
 import {
+  ADMIN_MOBILE_NAV,
   ADMIN_NAV,
   CUSTOMER_MOBILE_NAV,
   CUSTOMER_NAV,
+  RIDER_MOBILE_NAV,
   RIDER_NAV,
+  SHOPKEEPER_MOBILE_NAV,
   SHOPKEEPER_NAV,
   type NavItem,
 } from '@/lib/config/nav'
@@ -21,7 +24,10 @@ const NAV_BY_ROLE: Record<AppRole, NavItem[]> = {
 }
 
 const MOBILE_NAV_BY_ROLE: Partial<Record<AppRole, NavItem[]>> = {
+  admin: ADMIN_MOBILE_NAV,
   customer: CUSTOMER_MOBILE_NAV,
+  rider: RIDER_MOBILE_NAV,
+  shopkeeper: SHOPKEEPER_MOBILE_NAV,
 }
 
 export interface ShellUser {
@@ -62,7 +68,7 @@ export function AppShell({
       />
 
       <main>
-        <div className="mx-auto w-full max-w-7xl px-4 py-5 pb-28 md:px-6 md:py-7 md:pb-12">
+        <div className="mx-auto w-full max-w-7xl px-4 py-5 pb-[calc(5.75rem+env(safe-area-inset-bottom))] md:px-6 md:py-7 md:pb-12">
           {children}
         </div>
       </main>
